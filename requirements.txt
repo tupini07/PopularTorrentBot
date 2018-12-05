@@ -1,0 +1,6 @@
+python-telegram-bot
+Flask
+requests
+sphinxcontrib-httpdomain
+sphinx_rtd_theme
+sphinx
