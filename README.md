@@ -3,7 +3,9 @@
 Telegram bot that gives you information on the most "shared" torrents by country
 
 External services used:
-- Torrent Information: https://iknowwhatyoudownload.com/assets/docs/ContentAPI.html
+- Torrent Information: 
+  - https://iknowwhatyoudownload.com/assets/docs/ContentAPI.html
+  - https://github.com/Yuuyuuei/Torapi
 - Access to IMDB data: http://www.omdbapi.com/
 - Pastebin to publish results: https://pastebin.com/api
 
@@ -33,6 +35,8 @@ Hosting can be done like this:
 
 ## Idea for structure
 
+### For main part:
+
 - If the :mediatype is either `movie` or `tv show` then it's information will be obtained from IMDB
 
 /locations
@@ -49,13 +53,49 @@ Hosting can be done like this:
 
 /locations/:location/types
 
-    List of media type of which we have information for the specified location
+    List of media type of which we have information for the specified location. This is actually
+    hardcoded depending on the different API suppert (country || global)
 
 /locations/:country/types/:mediatype
 
-    Top items of :mediatype for the specified country
-
+    Top items of :mediatype for the specified country.
+    If :mediatype is movie or tv show then here we fetch information from IMDB
 
 /locations/global/types/:mediatype
 
     Top itemos of :mediatype globally
+    If :mediatype is movie or tv show then here we fetch information from IMDB
+    
+
+### For database:
+
+Note that database only saves references (to save space). Actual data is stored in pastebin.com . Also note that 
+actual number of pastebin keys needs to be calculated. We want to enforce the 10 posts per day limit directly
+in the service.
+
+/records
+
+    returns all the dates of which we have a record. Note that records are only saved on the days in which a user
+    makes a request. 
+
+/records/:date/categories
+
+    returns all the categories that we have in record for the specified date. 
+    The :date is the specific day we're talking about. it is given in yyyy-mm-dd format
+
+    404 if :date doesn't exist
+
+/records/:date/categories/:category
+
+    Returns the information we have about :category for the specified :date
+    Need to handle:
+        - unexisting date
+        - unexisting category
+
+POST /record/:date/categories
+
+    {type: :category, content: :content} 
+
+    creates a new entry in the database for the {:type} category for the specified :date
+    If :date does not exist then it is created. 
+
