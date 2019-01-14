@@ -21,10 +21,10 @@ CORS(app, origins=r"*")
 def page_not_found(e):
 
     # note that we set the 404 status explicitly
-    return json.dumps({"error": "requested resource does not exist on database server"}), 404
+    return json.dumps({"error": "requested resource does not exist on server"}), 404
 
 
-@app.route("/records", methods=["GET"])
+@app.route("/locations", methods=["GET"])
 def get_records():
 
     sess = Session()
