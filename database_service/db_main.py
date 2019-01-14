@@ -9,41 +9,43 @@ import requests
 from flask import Flask, redirect, render_template, request, session, url_for
 from flask_cors import CORS
 
-import rarbgapi
+import pastebin_wrapper
+from db_resources import Record, Session
+from sqlalchemy import desc
 
 app = Flask(__name__)
 
 CORS(app, origins=r"*")
 
-TORRENT_API = rarbgapi.RarbgAPI()
-
-SUPPORTED_CATEGORIES = [
-    "software",     # CATEGORY_SOFTWARE,
-    "ebooks",       # CATEGORY_EBOOK,
-    "movies",       # CATEGORY_MOVIES_ALL,
-    "TV-series",    # CATEGORY_TV_ALL,
-    "music",        # CATEGORY_MUSIC_ALL,
-    "games"         # CATEGORY_GAMES_ALL,
-]
 
 @app.errorhandler(404)
 def page_not_found(e):
 
     # note that we set the 404 status explicitly
-    return json.dumps({"error": "requested resource does not exist on server"}), 404
-
-
-@app.route("/categories", methods=["GET"])
-def get_categories():
-    """
-    Returns the categories that we support in general
-    """
-    return json.dumps(SUPPORTED_CATEGORIES), 200
+    return json.dumps({"error": "requested resource does not exist on database server"}), 404
 
 
 @app.route("/records", methods=["GET"])
-def get_available_dates():
-    
+def get_records():
+
+    sess = Session()
+
+    results = sess.query(Record.date).order_by(desc(Record.date))
+
+    if "limit" in request.args:
+        results = results.limit(int(request.args.get("limit")))
+
+    results = results.all()
+
+    sess.close()
+
+    if len(results) == 0:
+        return "[]", 204
+
+    else:
+        results = set([str(x[0]) for x in results])
+        return json.dumps(list(results)), 200
+
 
 @app.route("/records/<date>/categories", methods=["GET"])
 def get_categories_for_date(date):
@@ -136,4 +138,4 @@ if __name__ == "__main__":
     os.environ["FLASK_ENV"] = "development"
 
     app.secret_key = os.urandom(12)  # Generic key for dev purposes only
-    app.run(host='0.0.0.0', port=7802, debug=True, use_reloader=True)
+    app.run(host='0.0.0.0', port=7801, debug=True, use_reloader=True)

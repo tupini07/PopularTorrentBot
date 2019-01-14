@@ -4,3 +4,5 @@ requests
 sphinxcontrib-httpdomain
 sphinx_rtd_theme
 sphinx
+flask_cors
+sqlalchemy
