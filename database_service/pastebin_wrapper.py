@@ -4,13 +4,13 @@ import sys
 import requests
 
 sys.path.insert(0, '..')
-import config
+import keys
 
 
 def _get_next_key():
 
-    nxt = config.PASTEBIN_KEYS.pop(0)
-    config.PASTEBIN_KEYS.append(nxt)
+    nxt = keys.PASTEBIN_KEYS.pop(0)
+    keys.PASTEBIN_KEYS.append(nxt)
 
     return nxt
 
@@ -45,7 +45,7 @@ def add_paste(new_text):
 
     succeeded = (False,)
     i = 0
-    while not succeeded[0] or i == len(config.PASTEBIN_KEYS):
+    while not succeeded[0] or i == len(keys.PASTEBIN_KEYS):
         succeeded = try_actual_bin_creation(_get_next_key())
         i += 1
 

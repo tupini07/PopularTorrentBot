@@ -1,4 +1,4 @@
-config.py
+keys.py
 .vscode
 *.db
 # Byte-compiled / optimized / DLL files

@@ -1,5 +1,5 @@
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import config
+import keys
 import logging
 logging.basicConfig(format='BOT: %(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -27,7 +27,7 @@ def unknown(bot, update):
 ####################################
 
 
-updater = Updater(config.TELEGRAM_BOT_API_KEY)
+updater = Updater(keys.TELEGRAM_BOT_API_KEY)
 
 updater.dispatcher.add_handler(CommandHandler('help', help))
 updater.dispatcher.add_handler(CommandHandler('countries', countries))

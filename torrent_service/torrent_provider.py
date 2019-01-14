@@ -26,3 +26,4 @@ r = a.list(sort="seeders", format_="json_extended", category=a.CATEGORY_MOVIES_A
                   'themoviedb': '300681'},
  'ranked': 1,
  'info_page': 'https://torrentapi.org/redirect_to_info.php?token=yszx8qnwkm&p=1_7_2_1_2_7_1__25e895a708'}
+

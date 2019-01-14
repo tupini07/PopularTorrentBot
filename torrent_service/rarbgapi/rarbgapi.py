@@ -88,7 +88,7 @@ class _RarbgAPIv2(object):
     https://torrentapi.org/apidocs_v2.txt
     '''
     ENDPOINT = 'http://torrentapi.org/pubapi_v2.php'
-    APP_ID = 'rarbgapi'
+    APP_ID = 'populartorrentbot'
 
     def __init__(self):
         super(_RarbgAPIv2, self).__init__()
@@ -272,7 +272,7 @@ class RarbgAPI(_RarbgAPIv2):
     ]
 
     ######################################################
-    
+
     def __init__(self, **options):
         super(RarbgAPI, self).__init__()
         self._token = None
