@@ -45,6 +45,7 @@ class Torrent(object):
         "info_page":"https://torrentapi.org/...."
     }
     '''
+
     def __init__(self, mapping):
         self._raw = mapping
         self.is_extended = 'title' in self._raw
@@ -55,8 +56,19 @@ class Torrent(object):
         self.pubdate = self._raw.get('pubdate')
         self.page = self._raw.get('info_page')
 
-    def __str__(self):
-        return '%s(%s)' % (self.filename, self.category)
+        self.seeders = self._raw.get('seeders')
+        self.leechers = self._raw.get('leechers')
+
+        if "episode_info" in self._raw and self._raw["episode_info"] is not None:
+            self.imdb_id = self._raw.get("episode_info").get("imdb")
+
+        else:
+            self.imdb_id = None
+
+    def __repr__(self):
+        # [print(x.filename + " " + x.category + " " + str(x.seeders) + ) for x in r]
+
+        return f"Torrent(n:{self.filename} - c:{self.category} - s:{self.seeders} - imdb:{self.imdb_id})"
 
 
 def json_hook(dct):
@@ -132,6 +144,9 @@ class _RarbgAPIv2(object):
             if value is None:
                 continue
 
+            if key == "category" and value is not None and type(value) == list:
+                value = ";".join(str(x) for x in value)
+
             params[key] = value
 
         return self._requests('GET', self._endpoint, params)
@@ -151,6 +166,7 @@ def request(func):
                     raise TokenExpireException('Empty token')
 
                 resp = func(self, token=self._token, *args, **kwargs)
+
                 json_ = resp.json(object_hook=json_hook)
                 error_code = json_.get('error_code')
                 if error_code:
@@ -166,21 +182,27 @@ def request(func):
                     else:
                         self._log.warn('error %s', json_)
                         raise ValueError('error')
+
                 elif 'torrent_results' not in json_:
                     self._log.info('Bad response %s', json_)
+
                 return json_['torrent_results']
+
             except NoResultsException:
                 return []
+
             except TokenExpireException:
                 resp = self._get_token()
                 content = resp.json()
                 self._token = content['token']
                 self._log.debug('token=%s', self._token)
+
             except Exception as exp:  # pylint: disable=broad-except
                 self._log.exception('Unexpected exceptin %s', exp)
                 retries -= 1
                 if not retries:
                     raise
+
             else:
                 retries -= 1
             finally:
@@ -201,18 +223,56 @@ class RarbgAPI(_RarbgAPIv2):
     CATEGORY_MOVIE_H264_3D = 47
     CATEGORY_MOVIE_FULL_BD = 42
     CATEGORY_MOVIE_BD_REMUX = 46
+
     CATEGORY_TV_EPISODES = 18
     CATEGORY_TV_EPISODES_HD = 41
     CATEGORY_TV_EPISODES_UHD = 49
+
     CATEGORY_MUSIC_MP3 = 23
     CATEGORY_MUSIC_FLAC = 25
+
     CATEGORY_GAMES_PC_ISO = 27
     CATEGORY_GAMES_PC_RIP = 28
     CATEGORY_GAMES_PS3 = 40
     CATEGORY_GAMES_XBOX = 32
+
+    ######################################################
+
     CATEGORY_SOFTWARE = 33
+
     CATEGORY_EBOOK = 35
 
+    CATEGORY_MOVIES_ALL = [
+        CATEGORY_MOVIE_XVID,
+        CATEGORY_MOVIE_XVID_720P,
+        CATEGORY_MOVIE_H264,
+        CATEGORY_MOVIE_H264_1080P,
+        CATEGORY_MOVIE_H264_720P,
+        CATEGORY_MOVIE_H264_3D,
+        CATEGORY_MOVIE_FULL_BD,
+        CATEGORY_MOVIE_BD_REMUX
+    ]
+
+    CATEGORY_TV_ALL = [
+        CATEGORY_TV_EPISODES,
+        CATEGORY_TV_EPISODES_HD,
+        CATEGORY_TV_EPISODES_UHD
+    ]
+
+    CATEGORY_MUSIC_ALL = [
+        CATEGORY_MUSIC_FLAC,
+        CATEGORY_MUSIC_MP3
+    ]
+
+    CATEGORY_GAMES_ALL = [
+        CATEGORY_GAMES_PC_ISO,
+        CATEGORY_GAMES_PC_RIP,
+        CATEGORY_GAMES_PS3,
+        CATEGORY_GAMES_XBOX,
+    ]
+
+    ######################################################
+    
     def __init__(self, **options):
         super(RarbgAPI, self).__init__()
         self._token = None

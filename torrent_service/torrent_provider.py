@@ -3,9 +3,15 @@ import rarbgapi
 
 a = rarbgapi.RarbgAPI()
 
-r = a.list(sort="seeders", format_="json_extended")
+# r = a.list(sort="seeders", format_="json_extended")
+             
+r = a.list(sort="seeders", format_="json_extended", category=a.CATEGORY_MOVIES_ALL)             
+# r = a.list(sort="seeders",format_="json_extended")
+# [print(x.filename + " " + x.category + " " + str(x.seeders) + ) for x in r] 
+[print(x) for x in r]
 
-qq._raw
+
+# r[0]._raw
 
 {'title': 'Replicas.2018.1080p.HC.WEBRip.x264.AAC2.0-STUTTERSHIT',
  'category': 'Movies/x264/1080',
