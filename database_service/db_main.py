@@ -61,7 +61,7 @@ def get_categories_for_date(date):
     session.close()
 
     if len(results) == 0:
-        return "[]", 204
+        return json.dumps([]), 204
 
     else:
         results = set([str(x[0]) for x in results])
@@ -90,10 +90,10 @@ def get_information_on_category_for_date(date, category):
 
     pastebin_data = pastebin_wrapper.get_paste(pastebin_url)
 
-    return pastebin_data + textwrap.dedent(f"""
-
-    This data can also be found in pastebin, at the following URL: {pastebin_url}
-    """), 200
+    if "Your paste has triggered our automatic SPAM" in pastebin_data:
+        return pastebin_url, 500 
+    else:
+        return pastebin_data, 200
 
 
 @app.route("/records/<date>/categories", methods=["POST"])
@@ -118,19 +118,28 @@ def create_category_entry_on_date(date):
 
         # first, check is paste already exists
         session = Session()
-        result = session.query(Record.url).filter(
+        exists = session.query(Record.url).filter(
             Record.date == date).filter(Record.category == category).first()
 
-        if result:
-            return json.dumps({"url": result[0]}), 409  # 409 = conflict
+        ret_code = 201
+        if exists:
+            ret_code = 409  # 409 = conflict
+            paste_url = exists[0]
+            
+        else:
+            paste_url = pastebin_wrapper.add_paste(content)
 
-        paste_url = pastebin_wrapper.add_paste(content)
+            session.add(Record(category=category, date=date, url=paste_url))
+            session.commit()
+            session.close()
 
-        session.add(Record(category=category, date=date, url=paste_url))
-        session.commit()
-        session.close()
+        pastebin_data = pastebin_wrapper.get_paste(paste_url)
 
-        return json.dumps({"url": paste_url}), 201  # created
+        if "Your paste has triggered our automatic SPAM" in pastebin_data:
+            return paste_url, 500 
+        else:
+            return pastebin_data, ret_code
+
 
 
 if __name__ == "__main__":

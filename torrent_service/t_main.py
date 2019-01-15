@@ -2,30 +2,37 @@ import datetime
 import json
 import os
 import random
+import sys
 import textwrap
 from sys import getsizeof
 
 import requests
 from flask import Flask, redirect, render_template, request, session, url_for
 from flask_cors import CORS
-import requests
 
 import rarbgapi
+
+sys.path.insert(0, '..')
+import config
+import keys
+
 
 app = Flask(__name__)
 
 CORS(app, origins=r"*")
 
+OMBD_URL = "http://www.omdbapi.com/"
 TORRENT_API = rarbgapi.RarbgAPI()
 
-SUPPORTED_CATEGORIES = [
-    "software",     # CATEGORY_SOFTWARE,
-    "ebooks",       # CATEGORY_EBOOK,
-    "movies",       # CATEGORY_MOVIES_ALL,
-    "TV-series",    # CATEGORY_TV_ALL,
-    "music",        # CATEGORY_MUSIC_ALL,
-    "games"         # CATEGORY_GAMES_ALL,
-]
+SUPPORTED_CATEGORIES = {
+    "software":     TORRENT_API.CATEGORY_SOFTWARE,
+    "ebooks":       TORRENT_API.CATEGORY_EBOOK,
+    "movies":       TORRENT_API.CATEGORY_MOVIES_ALL,
+    "TV-series":    TORRENT_API.CATEGORY_TV_ALL,
+    "music":        TORRENT_API.CATEGORY_MUSIC_ALL,
+    "games":        TORRENT_API.CATEGORY_GAMES_ALL,
+    "all":          None
+}
 
 
 @app.errorhandler(404)
@@ -40,7 +47,7 @@ def get_categories():
     """
     Returns the categories that we support in general
     """
-    return json.dumps(SUPPORTED_CATEGORIES), 200
+    return json.dumps(list(SUPPORTED_CATEGORIES.keys())), 200
 
 
 @app.route("/categories/<category>", methods=["GET"])
@@ -55,7 +62,71 @@ def get_information_on_category_for_date(category):
     if category not in SUPPORTED_CATEGORIES:
         return json.dumps({"error": "Invalid category"}), 404
 
+    today = str(datetime.datetime.now().date())
 
+    # Ask database to see if we have record in memory
+    res = requests.get(config.DATABASE_SERVICE_ADDRESS +
+                       f"/records/{today}/categories/{category}")
+
+    # Then result exists and just return that
+    if res.status_code == 200:
+        return res.text, 200
+
+    # else, we need to get data, and create entry in database
+    torrents = TORRENT_API.list(sort="seeders", format_="json_extended",
+                                category=SUPPORTED_CATEGORIES.get(category))
+
+    # only process top 7 torrents
+    if len(torrents) > 7:
+        torrents = torrents[:7]
+
+    content = ""
+
+    def process_as_movie_tv(tm: rarbgapi.Torrent) -> str:
+        params = {
+            "apikey": keys.OMBD_KEY,
+            "i": tm.imdb_id
+        }
+
+        data = requests.get(OMBD_URL, params=params).json()
+
+        return textwrap.dedent(f""" 
+            Title: {data.get("Title")}
+            Seeders: {tm.seeders}
+            Leechers: {tm.leechers}
+            Runtime: {data.get("Runtime")}
+            Genre: {data.get("Genre")}
+            Director: {data.get("Director")}
+            Awards: {data.get("Awards")}
+            Rating (IMDB): {data.get("imdbRating")}
+            Plot: {data.get("Plot")}""")
+
+    def process_as_other(tm: rarbgapi.Torrent) -> str:
+        return textwrap.dedent(f"""
+            Title: {tm.filename}
+            Seeders: {tm.seeders}
+            Leechers: {tm.leechers}""")
+
+    # if we're talking about movies or tvseries then we need to get info from IMDB
+    for mm in torrents:
+        if hasattr(mm, "imdb_id") and mm.imdb_id:
+            ir = process_as_movie_tv(mm)
+
+        else:
+            ir = process_as_other(mm)
+
+        content += ir + "\n\n"
+
+    res = requests.post(config.DATABASE_SERVICE_ADDRESS +
+                        f"/records/{today}/categories",
+                        data={"category": category,
+                              "content": content})
+
+    if res.status_code == 500:
+        return content + textwrap.dedent(f"""
+            This data can also be found in pastebin, at the following URL: {res.text}"""), 200
+    else:
+        return res.text, 200
 
 
 if __name__ == "__main__":
