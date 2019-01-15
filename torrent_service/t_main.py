@@ -122,11 +122,7 @@ def get_information_on_category_for_date(category):
                         data={"category": category,
                               "content": content})
 
-    if res.status_code == 500:
-        return content + textwrap.dedent(f"""
-            This data can also be found in pastebin, at the following URL: {res.text}"""), 200
-    else:
-        return res.text, 200
+    return res.text, 200
 
 
 if __name__ == "__main__":

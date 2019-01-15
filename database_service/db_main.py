@@ -91,7 +91,7 @@ def get_information_on_category_for_date(date, category):
     pastebin_data = pastebin_wrapper.get_paste(pastebin_url)
 
     if "Your paste has triggered our automatic SPAM" in pastebin_data:
-        return pastebin_url, 500 
+        return pastebin_url, 500
     else:
         return pastebin_data, 200
 
@@ -125,7 +125,11 @@ def create_category_entry_on_date(date):
         if exists:
             ret_code = 409  # 409 = conflict
             paste_url = exists[0]
-            
+
+            pastebin_data = pastebin_wrapper.get_paste(paste_url, wrap=False)
+            if not "Your paste has triggered our automatic SPAM" in pastebin_data:
+                content = pastebin_data
+
         else:
             paste_url = pastebin_wrapper.add_paste(content)
 
@@ -133,13 +137,7 @@ def create_category_entry_on_date(date):
             session.commit()
             session.close()
 
-        pastebin_data = pastebin_wrapper.get_paste(paste_url)
-
-        if "Your paste has triggered our automatic SPAM" in pastebin_data:
-            return paste_url, 500 
-        else:
-            return pastebin_data, ret_code
-
+        return pastebin_wrapper._wrap_data_with_information(pastebin_data, paste_url), ret_code
 
 
 if __name__ == "__main__":
