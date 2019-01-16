@@ -64,19 +64,6 @@ def get_information_on_category_for_date(category):
 
     today = str(datetime.datetime.now().date())
 
-    try:
-        # Ask database to see if we have record in memory
-        res = requests.get(config.DATABASE_SERVICE_ADDRESS +
-                        f"/records/{today}/categories/{category}")
-
-        # Then result exists and just return that
-        if res.status_code == 200:
-            return res.text, 200
-
-    except requests.exceptions.ConnectionError:
-        pass
-
-    # else, we need to get data, and create entry in database
     torrents = TORRENT_API.list(sort="seeders", format_="json_extended",
                                 category=SUPPORTED_CATEGORIES.get(category))
 
@@ -120,21 +107,8 @@ def get_information_on_category_for_date(category):
             ir = process_as_other(mm)
 
         content += ir + "\n\n"
-    try:
-        res = requests.post(config.DATABASE_SERVICE_ADDRESS +
-                            f"/records/{today}/categories",
-                            data={"category": category,
-                                "content": content})
 
-        if res.status_code == 500:
-            return res.text + ("\nDatabase service was not able to create entry in database. "
-                               "Possibly because we've exceeded the paste limit in pastebin")
-
-        else:
-            return res.text, 200 # could create and add content in DB
-
-    except requests.exceptions.ConnectionError:
-        return content, 206 # couldn't create content in DB
+    return content, 200
 
 
 if __name__ == "__main__":
