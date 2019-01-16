@@ -64,13 +64,17 @@ def get_information_on_category_for_date(category):
 
     today = str(datetime.datetime.now().date())
 
-    # Ask database to see if we have record in memory
-    res = requests.get(config.DATABASE_SERVICE_ADDRESS +
-                       f"/records/{today}/categories/{category}")
+    try:
+        # Ask database to see if we have record in memory
+        res = requests.get(config.DATABASE_SERVICE_ADDRESS +
+                        f"/records/{today}/categories/{category}")
 
-    # Then result exists and just return that
-    if res.status_code == 200:
-        return res.text, 200
+        # Then result exists and just return that
+        if res.status_code == 200:
+            return res.text, 200
+
+    except requests.exceptions.ConnectionError:
+        pass
 
     # else, we need to get data, and create entry in database
     torrents = TORRENT_API.list(sort="seeders", format_="json_extended",
@@ -116,13 +120,16 @@ def get_information_on_category_for_date(category):
             ir = process_as_other(mm)
 
         content += ir + "\n\n"
+    try:
+        res = requests.post(config.DATABASE_SERVICE_ADDRESS +
+                            f"/records/{today}/categories",
+                            data={"category": category,
+                                "content": content})
 
-    res = requests.post(config.DATABASE_SERVICE_ADDRESS +
-                        f"/records/{today}/categories",
-                        data={"category": category,
-                              "content": content})
+        return res.text, 200 # could create and add content in DB
 
-    return res.text, 200
+    except requests.exceptions.ConnectionError:
+        return content, 206 # couldn't create content in DB
 
 
 if __name__ == "__main__":
