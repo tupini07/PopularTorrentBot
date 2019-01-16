@@ -5,8 +5,7 @@ from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 sys.path.insert(0, '..')
 import keys
-import config
-
+import helper
 
 logging.basicConfig(format='BOT: %(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
