@@ -34,7 +34,7 @@ def add_paste(new_text):
     paste_name = "".join(possible[:32])
 
     def try_actual_bin_creation(api_key):
-        print(api_key)
+        
         payload = {
             **api_key,
             "api_option": 'paste',

@@ -132,11 +132,15 @@ def create_category_entry_on_date(date):
                 content = pastebin_data
 
         else:
-            paste_url = pastebin_wrapper.add_paste(content)
+            try:
+                paste_url = pastebin_wrapper.add_paste(content)
 
-            session.add(Record(category=category, date=date, url=paste_url))
-            session.commit()
-            session.close()
+                session.add(Record(category=category, date=date, url=paste_url))
+                session.commit()
+                session.close()
+
+            except RuntimeError:
+                return content, 500 # this happens when we exceed paste limit in pastebin
 
         return pastebin_wrapper._wrap_data_with_information(content, paste_url), ret_code
 

@@ -126,7 +126,12 @@ def get_information_on_category_for_date(category):
                             data={"category": category,
                                 "content": content})
 
-        return res.text, 200 # could create and add content in DB
+        if res.status_code == 500:
+            return res.text + ("\nDatabase service was not able to create entry in database. "
+                               "Possibly because we've exceeded the paste limit in pastebin")
+
+        else:
+            return res.text, 200 # could create and add content in DB
 
     except requests.exceptions.ConnectionError:
         return content, 206 # couldn't create content in DB
