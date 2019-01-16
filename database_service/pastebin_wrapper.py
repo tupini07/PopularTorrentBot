@@ -34,13 +34,14 @@ def add_paste(new_text):
     paste_name = "".join(possible[:32])
 
     def try_actual_bin_creation(api_key):
+        print(api_key)
         payload = {
-            "api_dev_key": api_key,
+            **api_key,
             "api_option": 'paste',
             "api_paste_code": new_text,
             "api_paste_private": '0',
             "api_paste_name": paste_name,
-            "api_paste_expire_date": '6M'
+            "api_paste_expire_date": '6M',
         }
 
         url = "https://pastebin.com/api/api_post.php"
@@ -55,7 +56,7 @@ def add_paste(new_text):
 
     succeeded = (False,)
     i = 0
-    while not succeeded[0] or i == len(keys.PASTEBIN_KEYS):
+    while not succeeded[0] and i <= len(keys.PASTEBIN_KEYS):
         succeeded = try_actual_bin_creation(_get_next_key())
         i += 1
 

@@ -127,6 +127,7 @@ def create_category_entry_on_date(date):
             paste_url = exists[0]
 
             pastebin_data = pastebin_wrapper.get_paste(paste_url, wrap=False)
+
             if not "Your paste has triggered our automatic SPAM" in pastebin_data:
                 content = pastebin_data
 
@@ -137,7 +138,7 @@ def create_category_entry_on_date(date):
             session.commit()
             session.close()
 
-        return pastebin_wrapper._wrap_data_with_information(pastebin_data, paste_url), ret_code
+        return pastebin_wrapper._wrap_data_with_information(content, paste_url), ret_code
 
 
 if __name__ == "__main__":
