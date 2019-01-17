@@ -72,7 +72,7 @@ def add_paste(new_text):
 def get_paste(paste_url, wrap=True):
     paste = requests.request("GET", paste_url).text
 
-    if paste.startswith("<!DOCTYPE HTML>"):
+    if paste.startswith("<!DOCTYPE HTML>") and "Your paste has triggered our automatic SPAM" not in paste:
         parsed_html = BeautifulSoup(paste, features="html.parser")
         paste = parsed_html.body.find('textarea', attrs={'id': 'paste_code'}).text
 
