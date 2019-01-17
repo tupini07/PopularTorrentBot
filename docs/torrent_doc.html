@@ -1,0 +1,359 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Torrent Service Documentation &mdash; PopularTorrentBot  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Database Service Documentation" href="database_doc.html" />
+    <link rel="prev" title="PopularTorrentBot Documentation" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> PopularTorrentBot
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation for specific parts:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Torrent Service Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#endpoint-reference-table">Endpoint Reference Table</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#endpoint-documentation">Endpoint Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="database_doc.html">Database Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bot_doc.html">Telegram Bot Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">PopularTorrentBot</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Torrent Service Documentation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/torrent_doc.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="torrent-service-documentation">
+<h1>Torrent Service Documentation<a class="headerlink" href="#torrent-service-documentation" title="Permalink to this headline">¶</a></h1>
+<p>requires token which needs to be renewed
+open API also requires api key</p>
+<div class="section" id="endpoint-reference-table">
+<h2>Endpoint Reference Table<a class="headerlink" href="#endpoint-reference-table" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="20%" />
+<col width="45%" />
+<col width="35%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Resource</th>
+<th class="head">Operation</th>
+<th class="head">Description</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Get Categories</td>
+<td><a class="reference external" href="#get--categories">GET /categories</a></td>
+<td>Returns the supported categories.</td>
+</tr>
+<tr class="row-odd"><td>Get Category Information</td>
+<td><a class="reference external" href="#get--categories-(category)">GET /categories/(category)</a></td>
+<td>Returns top torrents for the specified category.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="endpoint-documentation">
+<h2>Endpoint Documentation<a class="headerlink" href="#endpoint-documentation" title="Permalink to this headline">¶</a></h2>
+<dl class="get">
+<dt id="get--categories">
+<code class="descname">GET </code><code class="descname">/categories</code><a class="headerlink" href="#get--categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the supported categories. This is basically always the same content, and the categories
+are <em>hardcoded</em> in the service, so that is why it is not possible for this to fail.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/categories</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.torrent.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;categories&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">&quot;software&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;ebooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;movies&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TV-series&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;music&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;games&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;all&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – able to list categories</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--categories-(category)">
+<code class="descname">GET </code><code class="descname">/categories/</code><span class="sig-paren">(</span><em>category</em><span class="sig-paren">)</span><a class="headerlink" href="#get--categories-(category)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Asks the torrent information provider for torrents about the specified category and 
+returns top torrents as dictionaries with the keys already properly formatted. If the 
+specified category is either <em>movie</em> or <em>TV-series</em> then the service will also include
+IMDB information as part of the return data.</p>
+<p>For all categories the service returns: <strong>Title</strong>, <strong>Seeders</strong>, and <strong>Leechers</strong>. When 
+the category is <em>movie</em> or <em>TV-series</em> then the service also returns the following 
+information for each torrent:</p>
+<ul class="simple">
+<li><strong>Runtime</strong></li>
+<li><strong>Genre</strong></li>
+<li><strong>Director</strong></li>
+<li><strong>Awards</strong></li>
+<li><strong>Rating</strong></li>
+<li><strong>Plot</strong></li>
+</ul>
+<p>This service only returns data on the top 7 torrents.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/categories/movies</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.torrent.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong> <em>(note that we’re only showing one result in the response, so as to save space, but 
+usually there would be 7)</em></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/javascript</span>
+
+<span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="o">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Title&quot;</span><span class="o">:</span> <span class="s2">&quot;The Girl in the Spider&#39;s Web&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Seeders&quot;</span><span class="o">:</span> <span class="mi">5644</span><span class="p">,</span>
+            <span class="s2">&quot;Leechers&quot;</span><span class="o">:</span> <span class="mi">2568</span><span class="p">,</span>
+            <span class="s2">&quot;Runtime&quot;</span><span class="o">:</span> <span class="s2">&quot;117 min&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Genre&quot;</span><span class="o">:</span> <span class="s2">&quot;Action, Crime, Drama, Thriller&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Director&quot;</span><span class="o">:</span> <span class="s2">&quot;Fede Alvarez&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Awards&quot;</span><span class="o">:</span> <span class="s2">&quot;N/A&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Rating (IMDB)&quot;</span><span class="o">:</span> <span class="s2">&quot;6.1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Plot&quot;</span><span class="o">:</span> <span class="s2">&quot;Young computer hacker Lisbeth Salander and journalist Mikael Blomkvist find themselves caught in a web of spies, cybercriminals and corrupt government officials.&quot;</span>
+        <span class="p">},</span>
+
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>category</strong> – the category we’re interested in getting information about</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.1">400 Bad Request</a> – the specified category is not valid</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – data for category has been successfully found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="database_doc.html" class="btn btn-neutral float-right" title="Database Service Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="PopularTorrentBot Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Andrea Tupini
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

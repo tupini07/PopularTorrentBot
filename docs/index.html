@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Welcome to PopularTorrentBot’s documentation! &mdash; PopularTorrentBot  documentation</title>
+  <title>PopularTorrentBot Documentation &mdash; PopularTorrentBot  documentation</title>
   
 
   
@@ -27,7 +27,8 @@
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Torrent Service Documentation" href="torrent_doc.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -76,12 +77,13 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Welcome to PopularTorrentBot’s documentation!</a></li>
-<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+              <p class="caption"><span class="caption-text">Documentation for specific parts:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="torrent_doc.html">Torrent Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_doc.html">Database Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bot_doc.html">Telegram Bot Documentation</a></li>
 </ul>
-</div>
+
             
           
         </div>
@@ -125,7 +127,7 @@
     
       <li><a href="#">Docs</a> &raquo;</li>
         
-      <li>Welcome to PopularTorrentBot’s documentation!</li>
+      <li>PopularTorrentBot Documentation</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -144,10 +146,69 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="welcome-to-populartorrentbot-s-documentation">
-<h1>Welcome to PopularTorrentBot’s documentation!<a class="headerlink" href="#welcome-to-populartorrentbot-s-documentation" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
+  <div class="section" id="populartorrentbot-documentation">
+<h1>PopularTorrentBot Documentation<a class="headerlink" href="#populartorrentbot-documentation" title="Permalink to this headline">¶</a></h1>
+<p><em>PopularTorrentBot</em> is a simple telegram bot that tells you which are the most popular torrents for a given date.
+It will give you information on a series of categories of torrents. These are:</p>
+<ul class="simple">
+<li>movies</li>
+<li>TV-series</li>
+<li>software</li>
+<li>ebooks</li>
+<li>music</li>
+<li>games</li>
+<li>all</li>
+</ul>
+<p>This bot was created as the final project for the course of
+<a class="reference external" href="https://sites.google.com/unitn.it/introsde2018-19">Introduction to Service Design and Engineering</a> course
+at <em>UNITN</em>.</p>
+<p>If the categorie is either <em>movie</em> or <em>TV-series</em> then the bot will also fetch the relevant information from IMBD
+(by using the excelent <a class="reference external" href="http://www.omdbapi.com/">OMDb API</a> service), and shows it to you.</p>
+<p>As mentioned above, <em>OMDb API</em> is used to fetch movie/tv-series information. For the torrent information we use the
+<a class="reference external" href="https://torrentapi.org/apidocs_v2.txt">torrentapi</a> service. And for saving informaiton we use a mix of a local database
+in SQLite and <a class="reference external" href="http://pastebin.com/">Pastebin</a>. In Pastebin we store the bulk of the data and in the database we just store
+key value pairs, where the key is composed of the date + category, and the value is a pastebin URL. In this way, when we get
+asked for information on a category for a specific date we can just pull the data from Pastebin.</p>
+<p>You can use the bot by adding <a class="reference external" href="https://telegram.me/ptorrentsbot">&#64;ptorrentsbot</a> as a contect in Telegram.</p>
 </div>
+<div class="section" id="how-to-access-the-services">
+<h1>How to access the services<a class="headerlink" href="#how-to-access-the-services" title="Permalink to this headline">¶</a></h1>
+<p>The <em>torrent</em> and <em>database</em> services can be accessed at the followng URLs (refer to their respective documentations in the
+links shown in the following section).</p>
+<ul class="simple">
+<li><strong>Torrent Service:</strong> some url</li>
+<li><strong>Database Service:</strong> some url</li>
+</ul>
+</div>
+<div class="section" id="structure-of-the-project">
+<h1>Structure of the project<a class="headerlink" href="#structure-of-the-project" title="Permalink to this headline">¶</a></h1>
+<p>This repository contains 3 different projects:</p>
+<ul class="simple">
+<li>The database service</li>
+<li>The torrent service</li>
+<li>The telegram bot</li>
+</ul>
+<p>These are executed as standalone applications, and can communicate freely between themselves. Documentation for each of these parts
+can be seen by visiting the following links:</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Documentation for specific parts:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="torrent_doc.html">Torrent Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="database_doc.html">Database Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bot_doc.html">Telegram Bot Documentation</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="credits">
+<h1>Credits<a class="headerlink" href="#credits" title="Permalink to this headline">¶</a></h1>
+<p>We use <a class="reference external" href="https://github.com/python-telegram-bot/python-telegram-bot">python-telegram-bot</a> as the library to create the telegram bot.</p>
+<p>We also use a modified version of the <a class="reference external" href="https://github.com/verybada/rarbgapi">rarbgapi</a> library to get data from torrents.
+The modifications that were made are (possibly a pull request to the project will be done in the future):</p>
+<ul class="simple">
+<li>Now it is possible to request multiple categories at once</li>
+<li>Torrent object now also contains IMDB data as well as seeder and leecher information</li>
+<li>New <em>bundle category</em> keys have been created</li>
+</ul>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -163,6 +224,13 @@
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="torrent_doc.html" class="btn btn-neutral float-right" title="Torrent Service Documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
   
 
   <hr/>

@@ -12,10 +12,14 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
 
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath('../database_service'))
+sys.path.insert(0, os.path.abspath('../torrent_service'))
+sys.path.insert(0, os.path.abspath('../bot_interface'))
 
 # -- Project information -----------------------------------------------------
 
@@ -42,6 +46,9 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
+    'sphinxcontrib.httpdomain',
+    'sphinxcontrib.autohttp.flask',
+    'sphinxcontrib.autohttp.flaskqref',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

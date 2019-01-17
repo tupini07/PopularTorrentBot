@@ -27,6 +27,9 @@ def page_not_found(e):
 
 @app.route("/records", methods=["GET"])
 def get_records():
+    """
+    some
+    """
 
     sess = Session()
 
