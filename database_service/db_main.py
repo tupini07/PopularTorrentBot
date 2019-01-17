@@ -31,9 +31,14 @@ def get_records():
     some
     """
 
+    app_id = request.args.get("app_id")
+    if not app_id:
+        return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
+
     sess = Session()
 
-    results = sess.query(Record.date).order_by(desc(Record.date))
+    results = sess.query(Record.date).filter(
+        Record.app_id == app_id).order_by(desc(Record.date))
 
     if "limit" in request.args:
         results = results.limit(int(request.args.get("limit")))
@@ -52,6 +57,11 @@ def get_records():
 
 @app.route("/records/<date>/categories", methods=["GET"])
 def get_categories_for_date(date):
+
+    app_id = request.args.get("app_id")
+    if not app_id:
+        return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
+
     try:
         date = [int(x) for x in date.split("-")]
         date = datetime.date(*date)
@@ -60,7 +70,8 @@ def get_categories_for_date(date):
         return json.dumps({"error": "Date is not properly formated, it should have the following format: YYYY-MM-DD"}), 422
 
     session = Session()
-    results = session.query(Record.category).filter(Record.date == date).all()
+    results = session.query(Record.category).filter(
+        Record.date == date).filter(Record.app_id == app_id).all()
     session.close()
 
     if len(results) == 0:
@@ -73,6 +84,9 @@ def get_categories_for_date(date):
 
 @app.route("/records/<date>/categories/<category>", methods=["GET"])
 def get_information_on_category_for_date(date, category):
+    app_id = request.args.get("app_id")
+    if not app_id:
+        return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
 
     try:
         date = [int(x) for x in date.split("-")]
@@ -82,10 +96,10 @@ def get_information_on_category_for_date(date, category):
         return json.dumps({"error": "Date is not properly formated, it should have the following format: YYYY-MM-DD"}), 422
 
     session = Session()
-    result = session.query(Record.url).filter(
+    result = session.query(Record.url).filter(Record.app_id == app_id).filter(
         Record.date == date).filter(Record.category == category).first()
     session.close()
-    
+
     if not result:
         return json.dumps({"error": "There are no records for the specified combination of category and date."}), 206
 
@@ -101,6 +115,10 @@ def get_information_on_category_for_date(date, category):
 
 @app.route("/records/<date>/categories", methods=["POST"])
 def create_category_entry_on_date(date):
+
+    app_id = request.args.get("app_id")
+    if not app_id:
+        return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
 
     try:
         date = [int(x) for x in date.split("-")]
@@ -121,7 +139,7 @@ def create_category_entry_on_date(date):
 
         # first, check is paste already exists
         session = Session()
-        exists = session.query(Record.url).filter(
+        exists = session.query(Record.url).filter(Record.app_id == app_id).filter(
             Record.date == date).filter(Record.category == category).first()
 
         ret_code = 201
@@ -139,7 +157,7 @@ def create_category_entry_on_date(date):
                 paste_url = pastebin_wrapper.add_paste(content)
 
                 session.add(Record(category=category,
-                                   date=date, url=paste_url))
+                                   date=date, url=paste_url, app_id=app_id))
                 session.commit()
                 session.close()
 

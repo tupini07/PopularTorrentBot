@@ -15,10 +15,11 @@ class Record(Base):
     category = Column(String, primary_key=True)
     date = Column(Date, primary_key=True)
     url = Column(String)
+    app_id = Column(String)
 
     def __repr__(self):
-        return "<Record(category='%s', date='%s', url='%s')>" % (
-            self.category, self.date, self.url)
+        return "<Record(category='%s', date='%s', url='%s', app='%s')>" % (
+            self.category, self.date, self.url, self.app_id)
 
 
 Base.metadata.create_all(engine)
@@ -27,5 +28,5 @@ if __name__ == "__main__":
     session = Session()
     print(session.query(Record).all())
     session.add(Record(category="test", date=datetime.date(
-        2018, 12, 26), url="https://pastebin.com/raw/sXCVakjQ"))
+        2018, 12, 26), url="https://pastebin.com/raw/sXCVakjQ", app_id="apptest"))
     session.commit()

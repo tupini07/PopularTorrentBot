@@ -7,6 +7,7 @@ from typing import List
 
 DATABASE_SERVICE_ADDRESS = "http://127.0.0.1:7801"
 TORRENT_SERVICE_ADDRESS = "http://127.0.0.1:7802"
+APP_ID = "PopularTorrentsBotAppId"
 
 
 def _service_call(c_type=""):
@@ -39,7 +40,8 @@ def get_supported_categories() -> List:
 def get_dates_in_record(limit=15) -> List:
     res = requests.get(DATABASE_SERVICE_ADDRESS + "/records",
                        params={
-                           "limit": limit
+                           "limit": limit,
+                           "app_id": APP_ID
                        })
 
     if res.status_code == 206:
@@ -51,7 +53,10 @@ def get_dates_in_record(limit=15) -> List:
 
 @_service_call("database")
 def get_record_of_categories_on_date(dt: str) -> List:
-    res = requests.get(DATABASE_SERVICE_ADDRESS + f"/records/{dt}/categories")
+    res = requests.get(DATABASE_SERVICE_ADDRESS + f"/records/{dt}/categories",
+                       params={
+                           "app_id": APP_ID
+                       })
 
     if res.status_code == 422:
         return res.json()["error"]
@@ -70,13 +75,16 @@ def get_information_for_category_on_date(category: str, date="today"):
 
     if not date or date.lower() == "today":
         date = today
-        
+
     starting_message = f"Most popular '{category}' torrents for '{date}' \n\n"
 
     #################################################################
     # Ask database to see if we have record in memory
     res = requests.get(DATABASE_SERVICE_ADDRESS +
-                       f"/records/{date}/categories/{category}")
+                       f"/records/{date}/categories/{category}",
+                       params={
+                           "app_id": APP_ID
+                       })
 
     # Then result exists and just return that
     if res.status_code == 200:
@@ -123,6 +131,7 @@ def get_information_for_category_on_date(category: str, date="today"):
 
     res = requests.post(DATABASE_SERVICE_ADDRESS +
                         f"/records/{today}/categories",
+                        params={"app_id": APP_ID},
                         data={"category": category,
                               "content": output})
 

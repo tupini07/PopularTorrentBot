@@ -191,7 +191,7 @@ def get_information_on_category_for_date(category):
             ir = process_as_other(mm)
 
         results.append(ir)
-    print(json.dumps({"data": results}))
+
     return json.dumps({"data": results}), 200
 
 
