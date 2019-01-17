@@ -59,7 +59,7 @@ def get_information_on_category_for_date(category):
     """
 
     if category not in SUPPORTED_CATEGORIES:
-        return json.dumps({"error": "Invalid category"}), 404
+        return json.dumps({"error": "Invalid category"}), 400
 
     torrents = TORRENT_API.list(sort="seeders", format_="json_extended",
                                 category=SUPPORTED_CATEGORIES.get(category))

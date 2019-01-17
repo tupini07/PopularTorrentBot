@@ -64,41 +64,70 @@ def get_record_of_categories_on_date(dt: str) -> List:
         return res.json()["data"]
 
 
-# TODO: Consider having torrent service returning JSON, also DB service could return JSON so that we comply with service
-# specification
+@_service_call()
+def get_information_for_category_on_date(category: str, date="today"):
+    today = str(datetime.datetime.now().date())
+    pastebin_url = None
 
-# The torrent service shouldn't talk with the database service.
-# The bot is the one that consumes both services and is the one that should integrate them
+    if date.lower() == "today":
+        date = today
+    
+    #################################################################
+    # Ask database to see if we have record in memory
+    res = requests.get(DATABASE_SERVICE_ADDRESS +
+                    f"/records/{date}/categories/{category}")
+    
+    # Then result exists and just return that
+    if res.status_code == 200:
+        return res.json()["data"]
 
-# code extracted from torrent service. Use this to communicate with database and integrate DB + torrent
+    # in case it exists but pastbin is asking for captcha confirmation
+    elif res.status_code == 500: 
+        # if the result exists and the date is today then we just ask for the information to the 
+        # torrent service once more
 
-# today = str(datetime.datetime.now().date())
+        if date == today:
+            pastebin_url = res.json()["data"]
+        else:
+            return (f"We do have data for this category and date, and it can be found here: {res.json()['data']} "
+                    "But sadly we can't access it programatically since it's asking for captcha verification "
+                    "You'll need to open the link and fill it up yourself.")
 
-# try:
-#     # Ask database to see if we have record in memory
-#     res = requests.get(DATABASE_SERVICE_ADDRESS +
-#                     f"/records/{today}/categories/{category}")
-
-#     # Then result exists and just return that
-#     if res.status_code == 200:
-#         return res.text, 200
-
-# except requests.exceptions.ConnectionError:
-#     pass
+    elif res.status_code == 422:
+        return res.json()["error"]
 
 
-# try:
-#     res = requests.post(DATABASE_SERVICE_ADDRESS +
-#                         f"/records/{today}/categories",
-#                         data={"category": category,
-#                             "content": content})
+    #################################################################
+    # get torrent information
+    res = requests.get(TORRENT_SERVICE_ADDRESS + f"/categories/{category}")
+    
+    if res.status_code == 400:
+        return res.json()["error"]
+    
+    res = res.json()["data"]
+    
+    # format result
+    output = []
+    for it in res:
+        output.append("\n".join(f"{k}: {v}" for k, v in it.items()))
+    output = "\n\n".join(output)
 
-#     if res.status_code == 500:
-#         return res.text + ("\nDatabase service was not able to create entry in database. "
-#                             "Possibly because we've exceeded the paste limit in pastebin")
+    # now, if we already have a pastebin url (meaning that the request was for today
+    # and that we have the information in the database but pastebin is asking for captcha)
+    # then we proceed to just add this to the end of the result and return this
+    if pastebin_url:
+        return output + "\n\nThis data can also be found in Pastebin, at the following URL: " + pastebin_url
 
-#     else:
-#         return res.text, 200 # could create and add content in DB
+    #################################################################
+    # add to database 
 
-# except requests.exceptions.ConnectionError:
-#     pass
+    res = requests.post(DATABASE_SERVICE_ADDRESS +
+                        f"/records/{today}/categories",
+                        data={"category": category,
+                            "content": output})
+
+    if res.status_code in [500, 422]:
+        return res.json()["error"]
+
+    else:
+        return res.json()["data"]

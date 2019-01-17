@@ -135,12 +135,14 @@ def create_category_entry_on_date(date):
             try:
                 paste_url = pastebin_wrapper.add_paste(content)
 
-                session.add(Record(category=category, date=date, url=paste_url))
+                session.add(Record(category=category,
+                                   date=date, url=paste_url))
                 session.commit()
                 session.close()
 
             except RuntimeError:
-                return json.dumps({"data": content}), 500 # this happens when we exceed paste limit in pastebin
+                return json.dumps({"error": ("Database service was not able to create entry in database. "
+                                             "Possibly because we've exceeded the daily paste limit in pastebin.")}), 500  # this happens when we exceed paste limit in pastebin
 
         return json.dumps({"data": pastebin_wrapper._wrap_data_with_information(content, paste_url)}), ret_code
 
