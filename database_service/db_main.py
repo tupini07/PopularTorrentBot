@@ -40,7 +40,7 @@ def get_records():
     sess.close()
 
     if len(results) == 0:
-        return json.dumps({"data": []}), 204
+        return json.dumps({"data": []}), 206
 
     else:
         results = set([str(x[0]) for x in results])
@@ -61,7 +61,7 @@ def get_categories_for_date(date):
     session.close()
 
     if len(results) == 0:
-        return json.dumps({"data": []}), 204
+        return json.dumps({"data": []}), 206
 
     else:
         results = set([str(x[0]) for x in results])
@@ -82,9 +82,9 @@ def get_information_on_category_for_date(date, category):
     result = session.query(Record.url).filter(
         Record.date == date).filter(Record.category == category).first()
     session.close()
-
+    
     if not result:
-        return json.dumps({"error": "There are no records for the specified combination of category and date."}), 204
+        return json.dumps({"error": "There are no records for the specified combination of category and date."}), 206
 
     pastebin_url = result[0]
 

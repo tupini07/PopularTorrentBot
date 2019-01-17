@@ -68,7 +68,6 @@ def get_information_on_category_for_date(category):
     if len(torrents) > 7:
         torrents = torrents[:7]
 
-
     def process_as_movie_tv(tm: rarbgapi.Torrent) -> str:
         params = {
             "apikey": keys.OMBD_KEY,
@@ -77,7 +76,7 @@ def get_information_on_category_for_date(category):
 
         data = requests.get(OMBD_URL, params=params).json()
 
-        return { 
+        return {
             "Title": data.get("Title"),
             "Seeders": tm.seeders,
             "Leechers": tm.leechers,

@@ -37,34 +37,13 @@ def list_categories(bot, update):
                      text=msg)
 
 
-def movies(bot, update, args):
-    bot.send_message(chat_id=update.message.chat_id,
-                     text="Not implemented yet. but your args are: " + str(args))
+def categories_handler(category):
 
-
-def tv(bot, update, args):
-    bot.send_message(chat_id=update.message.chat_id,
-                     text="Not implemented yet. but your args are: " + str(args))
-
-
-def music(bot, update, args):
-    pass
-
-
-def games(bot, update, args):
-    pass
-
-
-def all_c(bot, update, args):
-    pass
-
-
-def ebooks(bot, update, args):
-    pass
-
-
-def software(bot, update, args):
-    pass
+    def telegram_handle(bot, update, args):
+        date = args[0] if len(args) > 0 else None
+        bot.send_message(chat_id=update.message.chat_id,
+                         text=helper.get_information_for_category_on_date(category, date))
+    return telegram_handle
 
 
 def record_of_categories_on(bot, update, args):
@@ -75,9 +54,9 @@ def record_of_categories_on(bot, update, args):
 
     except Exception:
         bot.send_message(chat_id=update.message.chat_id,
-                     text="You need to specify a date and it should have the following format: YYYY-MM-DD")
+                         text="You need to specify a date and it should have the following format: YYYY-MM-DD")
         return
-    
+
     msg = helper.get_record_of_categories_on_date(str(date))
 
     if type(msg) == list and len(msg) > 0:
@@ -87,10 +66,9 @@ def record_of_categories_on(bot, update, args):
                      text=msg)
 
 
-
 def dates_in_record(bot, update, args):
     try:
-        limit = int(args[0]) 
+        limit = int(args[0])
         limit = limit if limit > 0 else 15
     except Exception:
         limit = 15
@@ -98,7 +76,7 @@ def dates_in_record(bot, update, args):
     msg = helper.get_dates_in_record(limit)
 
     if type(msg) == list and len(msg) > 0:
-        msg = helper.join_list_into_message(msg, joiner="")
+        msg = helper.join_list_into_message(msg, joiner=">")
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -120,15 +98,25 @@ updater.dispatcher.add_handler(
 updater.dispatcher.add_handler(CommandHandler('about', about))
 
 updater.dispatcher.add_handler(
-    CommandHandler('movies', movies, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('tv_series', tv, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('music', music, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('games', games, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('all', all_c, pass_args=True))
-updater.dispatcher.add_handler(
-    CommandHandler('ebooks', ebooks, pass_args=True))
+    CommandHandler('movies', categories_handler("movies"), pass_args=True))
+
 updater.dispatcher.add_handler(CommandHandler(
-    'software', software, pass_args=True))
+    'tv_series', categories_handler("TV-series"), pass_args=True))
+
+updater.dispatcher.add_handler(CommandHandler(
+    'music', categories_handler("music"), pass_args=True))
+
+updater.dispatcher.add_handler(CommandHandler(
+    'games', categories_handler("games"), pass_args=True))
+
+updater.dispatcher.add_handler(CommandHandler(
+    'all', categories_handler("all"), pass_args=True))
+
+updater.dispatcher.add_handler(
+    CommandHandler('ebooks', categories_handler("ebooks"), pass_args=True))
+
+updater.dispatcher.add_handler(CommandHandler(
+    'software', categories_handler("software"), pass_args=True))
 
 updater.dispatcher.add_handler(CommandHandler(
     'record_of_categories_on', record_of_categories_on, pass_args=True))
@@ -141,4 +129,3 @@ updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
 updater.start_polling()
 updater.idle()  # Note that this stops execution
-
