@@ -5,7 +5,8 @@ keys.py
 __pycache__/
 *.py[cod]
 *$py.class
-
+doctrees/
+.buildinfo
 # C extensions
 *.so
 
