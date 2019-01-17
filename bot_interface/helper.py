@@ -26,8 +26,8 @@ def _service_call(c_type=""):
     return _dec_scall
 
 
-def join_list_into_message(lst) -> str:
-    return "\n".join("- " + c for c in lst)
+def join_list_into_message(lst, joiner="-") -> str:
+    return "\n".join(joiner + " " + c for c in lst)
 
 
 @_service_call("torrent")
@@ -40,7 +40,7 @@ def get_dates_in_record(limit=15) -> List:
     res = requests.get(DATABASE_SERVICE_ADDRESS + "/records",
                         params={
                             "limit": limit
-                        }).json()["data"]
+                        })
 
     if res.status_code == 204:
         return "There are no records in the database, sorry!"
@@ -53,7 +53,7 @@ def get_dates_in_record(limit=15) -> List:
 @_service_call("database")
 def get_record_of_categories_on_date(dt: str) -> List:
     res = requests.get(DATABASE_SERVICE_ADDRESS + f"/records/{dt}/categories")
-    
+
     if res.status_code == 422:
         return res.json()["error"]
 

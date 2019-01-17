@@ -92,13 +92,13 @@ def dates_in_record(bot, update, args):
     try:
         limit = int(args[0]) 
         limit = limit if limit > 0 else 15
-    except ValueError:
+    except Exception:
         limit = 15
 
     msg = helper.get_dates_in_record(limit)
 
     if type(msg) == list and len(msg) > 0:
-        msg = helper.join_list_into_message(msg)
+        msg = helper.join_list_into_message(msg, joiner="")
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -116,12 +116,12 @@ updater = Updater(keys.TELEGRAM_BOT_API_KEY)
 
 updater.dispatcher.add_handler(CommandHandler('help', help_c))
 updater.dispatcher.add_handler(
-    CommandHandler('list-categories', list_categories))
+    CommandHandler('list_categories', list_categories))
 updater.dispatcher.add_handler(CommandHandler('about', about))
 
 updater.dispatcher.add_handler(
     CommandHandler('movies', movies, pass_args=True))
-updater.dispatcher.add_handler(CommandHandler('tv-series', tv, pass_args=True))
+updater.dispatcher.add_handler(CommandHandler('tv_series', tv, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('music', music, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('games', games, pass_args=True))
 updater.dispatcher.add_handler(CommandHandler('all', all_c, pass_args=True))
@@ -131,10 +131,10 @@ updater.dispatcher.add_handler(CommandHandler(
     'software', software, pass_args=True))
 
 updater.dispatcher.add_handler(CommandHandler(
-    'record-of-categories-on', record_of_categories_on, pass_args=True))
+    'record_of_categories_on', record_of_categories_on, pass_args=True))
 
 updater.dispatcher.add_handler(CommandHandler(
-    'dates-in-record', dates_in_record, pass_args=True))
+    'dates_in_record', dates_in_record, pass_args=True))
 
 
 updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
