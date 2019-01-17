@@ -1,6 +1,7 @@
 import helper
 import sys
 import logging
+import datetime
 
 import textwrap
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
@@ -30,7 +31,7 @@ def list_categories(bot, update):
     msg = helper.get_supported_categories()
 
     if type(msg) == list:
-        msg = "\n".join("- " + c for c in msg)
+        msg = helper.join_list_into_message(msg)
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -67,20 +68,37 @@ def software(bot, update, args):
 
 
 def record_of_categories_on(bot, update, args):
-    pass
+    try:
+        date = args[0]
+        date = [int(x) for x in date.split("-")]
+        date = datetime.date(*date)
+
+    except Exception:
+        bot.send_message(chat_id=update.message.chat_id,
+                     text="You need to specify a date and it should have the following format: YYYY-MM-DD")
+        return
+    
+    msg = helper.get_record_of_categories_on_date(str(date))
+
+    if type(msg) == list and len(msg) > 0:
+        msg = helper.join_list_into_message(msg)
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=msg)
+
 
 
 def dates_in_record(bot, update, args):
-    if len(args) > 0 and (
-            type(args[0]) == int or str.isdigit(args[0])):
-        limit = int(args[0])
-    else:
+    try:
+        limit = int(args[0]) 
+        limit = limit if limit > 0 else 15
+    except ValueError:
         limit = 15
 
     msg = helper.get_dates_in_record(limit)
 
-    if type(msg) == list:
-        msg = "\n".join("- " + c for c in msg)
+    if type(msg) == list and len(msg) > 0:
+        msg = helper.join_list_into_message(msg)
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -123,3 +141,4 @@ updater.dispatcher.add_handler(MessageHandler(Filters.command, unknown))
 
 updater.start_polling()
 updater.idle()  # Note that this stops execution
+
