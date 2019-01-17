@@ -27,8 +27,41 @@ def page_not_found(e):
 
 @app.route("/records", methods=["GET"])
 def get_records():
-    """
-    some
+    """Returns the records (dates) that we have information of in the database. 
+
+    .. :quickref: Get Records; Returns list of dates in database.
+
+    **Example request:**
+
+    .. code-block:: http
+
+        GET /records HTTP/1.1
+        Host: http://www.database.com
+        Accept: application/json
+
+
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {
+            "data":
+            [
+                "2019-01-14",
+                "2019-01-15",
+                "2019-01-16",
+                "2019-01-17"
+            ]
+        }
+
+    :query app_id: this is the id of the app
+    :status 422: the `app_id` parameter was not provided
+    :status 206: no records found in database 
+    :status 200: records found
     """
 
     app_id = request.args.get("app_id")
@@ -57,6 +90,45 @@ def get_records():
 
 @app.route("/records/<date>/categories", methods=["GET"])
 def get_categories_for_date(date):
+    """Returns the list of categories for which we have information in the 
+    database for a specific date. 
+
+    .. :quickref: Get Categories for Date; Returns list of categories for which we have information for a date.
+
+    **Example request:**
+
+    .. code-block:: http
+
+        GET /records/2019-01-16/categories HTTP/1.1
+        Host: http://www.database.com
+        Accept: application/json
+
+
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {
+            "data":
+            [
+                "ebooks",
+                "movies",
+                "TV-series"
+            ]
+        }
+
+    :query app_id: this is the id of the app
+    :query date: the date for which we want to get the list of available categories
+
+    :status 422: the `app_id` parameter was not provided
+    :status 422: the date parameter is not properly formatted
+    :status 206: no records found in database 
+    :status 200: records found
+    """
 
     app_id = request.args.get("app_id")
     if not app_id:
@@ -84,6 +156,61 @@ def get_categories_for_date(date):
 
 @app.route("/records/<date>/categories/<category>", methods=["GET"])
 def get_information_on_category_for_date(date, category):
+    """Get the entry we have saved for a specific category on a specific date. This endpoint will 
+    first check if we have a corresponding entry for the combined (date, category) and if yes then
+    it will attempt to pull the information from the corresponding pastebin page.
+
+    On some occasions Pastebin will complain saing that a paste is SPAM and a captcha has to 
+    be filled to see the paste's content. In this case the endpoing will just return the pastebin 
+    URL and it will be up to the user to go to the URL, solve the captcha, and see the paste.
+
+    Note that the content returned for the category is completely arbitrary, and is up to the creator
+    of said content to specify it.
+
+    .. :quickref: Get Category Information for Date; Returns information we have saved for a category on a specific date.
+
+    **Example request:**
+
+    .. code-block:: http
+
+        GET /records/2019-01-16/categories/ebooks HTTP/1.1
+        Host: http://www.database.com
+        Accept: application/json
+
+
+    **Example response:** *(Note: this result has been shortened to save space. Normally the result will contain 7 entries insted of 2)*
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: text/javascript
+
+        {
+            "data": `
+            Title: Accidental Texting: Finding Love despite the Spotl .EPUB
+            Seeders: 4
+            Leechers: 0
+            
+            Title: Tear You Apart by Megan Hart .PDF
+            Seeders: 3
+            Leechers: 0
+
+            This data can also be found in pastebin, at the following URL: https://pastebin.com/9tggfzGT
+            `
+        }
+
+    :query app_id: this is the id of the app category
+    :query date: the date which we're interested in
+    :query category: the category we're interested in
+
+    :status 422: the `app_id` parameter was not provided
+    :status 422: the date parameter is not properly formatted
+    :status 500: pastebin is asking for captcha verification (only pastebin URL is returned in this case)
+    :status 206: no records found in database 
+    :status 200: records found
+    """
+
     app_id = request.args.get("app_id")
     if not app_id:
         return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
@@ -108,7 +235,7 @@ def get_information_on_category_for_date(date, category):
     pastebin_data = pastebin_wrapper.get_paste(pastebin_url)
 
     if "Your paste has triggered our automatic SPAM" in pastebin_data:
-        return json.dumps({"data": pastebin_url}), 500
+        return json.dumps({"data": pastebin_url}), 500 # pastebin is asking for captcha
     else:
         return json.dumps({"data": pastebin_data}), 200
 

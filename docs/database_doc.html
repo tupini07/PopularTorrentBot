@@ -153,7 +153,10 @@
             
   <div class="section" id="database-service-documentation">
 <h1>Database Service Documentation<a class="headerlink" href="#database-service-documentation" title="Permalink to this headline">¶</a></h1>
-<p>requires api key</p>
+<p>All requests to databse must be authenticated with an <cite>app_id</cite> parameter.
+This allows the database to return the values for said application. Basically,
+the database service keeps a <cite>(key : value)</cite> collection for a specific application.</p>
+<p>requires api key for pastebin</p>
 <div class="section" id="endpoint-reference-table">
 <h2>Endpoint Reference Table<a class="headerlink" href="#endpoint-reference-table" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="colwidths-given docutils">
@@ -169,9 +172,17 @@
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>&#160;</td>
+<tr class="row-even"><td>Get Categories for Date</td>
+<td><a class="reference external" href="#get--records-(date)-categories">GET /records/(date)/categories</a></td>
+<td>Returns list of categories for which we have information for a date.</td>
+</tr>
+<tr class="row-odd"><td>Get Category Information for Date</td>
+<td><a class="reference external" href="#get--records-(date)-categories-(category)">GET /records/(date)/categories/(category)</a></td>
+<td>Returns information we have saved for a category on a specific date.</td>
+</tr>
+<tr class="row-even"><td>Get Records</td>
 <td><a class="reference external" href="#get--records">GET /records</a></td>
-<td>&#160;</td>
+<td>Returns list of dates in database.</td>
 </tr>
 </tbody>
 </table>
@@ -181,7 +192,159 @@
 <dl class="get">
 <dt id="get--records">
 <code class="descname">GET </code><code class="descname">/records</code><a class="headerlink" href="#get--records" title="Permalink to this definition">¶</a></dt>
-<dd><p>some</p>
+<dd><p>Returns the records (dates) that we have information of in the database.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/records</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.database.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;2019-01-14&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2019-01-15&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2019-01-16&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;2019-01-17&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>app_id</strong> – this is the id of the app</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--records-(date)-categories-(category)">
+<code class="descname">GET </code><code class="descname">/records/</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><code class="descname">/categories/</code><span class="sig-paren">(</span><em>category</em><span class="sig-paren">)</span><a class="headerlink" href="#get--records-(date)-categories-(category)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the entry we have saved for a specific category on a specific date. This endpoint will 
+first check if we have a corresponding entry for the combined (date, category) and if yes then
+it will attempt to pull the information from the corresponding pastebin page.</p>
+<p>On some occasions Pastebin will complain saing that a paste is SPAM and a captcha has to 
+be filled to see the paste’s content. In this case the endpoing will just return the pastebin 
+URL and it will be up to the user to go to the URL, solve the captcha, and see the paste.</p>
+<p>Note that the content returned for the category is completely arbitrary, and is up to the creator
+of said content to specify it.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/records/2019-01-16/categories/ebooks</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.database.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong> <em>(Note: this result has been shortened to save space. Normally the result will contain 7 entries insted of 2)</em></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">text/javascript</span>
+
+<span class="p">{</span>
+    <span class="s2">&quot;data&quot;</span><span class="o">:</span> <span class="sb">`</span>
+<span class="sb">    Title: Accidental Texting: Finding Love despite the Spotl .EPUB</span>
+<span class="sb">    Seeders: 4</span>
+<span class="sb">    Leechers: 0</span>
+<span class="sb">    </span>
+<span class="sb">    Title: Tear You Apart by Megan Hart .PDF</span>
+<span class="sb">    Seeders: 3</span>
+<span class="sb">    Leechers: 0</span>
+
+<span class="sb">    This data can also be found in pastebin, at the following URL: https://pastebin.com/9tggfzGT</span>
+<span class="sb">    `</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>app_id</strong> – this is the id of the app category</li>
+<li><strong>date</strong> – the date which we’re interested in</li>
+<li><strong>category</strong> – the category we’re interested in</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – pastebin is asking for captcha verification (only pastebin URL is returned in this case)</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="get">
+<dt id="get--records-(date)-categories">
+<code class="descname">GET </code><code class="descname">/records/</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><code class="descname">/categories</code><a class="headerlink" href="#get--records-(date)-categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the list of categories for which we have information in the 
+database for a specific date.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">GET</span> <span class="nn">/records/2019-01-16/categories</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.database.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span>
+    <span class="p">[</span>
+        <span class="s2">&quot;ebooks&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;movies&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;TV-series&quot;</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>app_id</strong> – this is the id of the app</li>
+<li><strong>date</strong> – the date for which we want to get the list of available categories</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -232,7 +395,6 @@
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   
