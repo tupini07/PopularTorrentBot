@@ -13,7 +13,6 @@ from flask_cors import CORS
 import rarbgapi
 
 sys.path.insert(0, '..')
-import config
 import keys
 
 
@@ -47,7 +46,7 @@ def get_categories():
     """
     Returns the categories that we support in general
     """
-    return json.dumps(list(SUPPORTED_CATEGORIES.keys())), 200
+    return json.dumps({"categories": list(SUPPORTED_CATEGORIES.keys())}), 200
 
 
 @app.route("/categories/<category>", methods=["GET"])
@@ -62,8 +61,6 @@ def get_information_on_category_for_date(category):
     if category not in SUPPORTED_CATEGORIES:
         return json.dumps({"error": "Invalid category"}), 404
 
-    today = str(datetime.datetime.now().date())
-
     torrents = TORRENT_API.list(sort="seeders", format_="json_extended",
                                 category=SUPPORTED_CATEGORIES.get(category))
 
@@ -71,7 +68,6 @@ def get_information_on_category_for_date(category):
     if len(torrents) > 7:
         torrents = torrents[:7]
 
-    content = ""
 
     def process_as_movie_tv(tm: rarbgapi.Torrent) -> str:
         params = {
@@ -81,23 +77,26 @@ def get_information_on_category_for_date(category):
 
         data = requests.get(OMBD_URL, params=params).json()
 
-        return textwrap.dedent(f""" 
-            Title: {data.get("Title")}
-            Seeders: {tm.seeders}
-            Leechers: {tm.leechers}
-            Runtime: {data.get("Runtime")}
-            Genre: {data.get("Genre")}
-            Director: {data.get("Director")}
-            Awards: {data.get("Awards")}
-            Rating (IMDB): {data.get("imdbRating")}
-            Plot: {data.get("Plot")}""")
+        return { 
+            "Title": data.get("Title"),
+            "Seeders": tm.seeders,
+            "Leechers": tm.leechers,
+            "Runtime": data.get("Runtime"),
+            "Genre": data.get("Genre"),
+            "Director": data.get("Director"),
+            "Awards": data.get("Awards"),
+            "Rating (IMDB)": data.get("imdbRating"),
+            "Plot": data.get("Plot"),
+        }
 
     def process_as_other(tm: rarbgapi.Torrent) -> str:
-        return textwrap.dedent(f"""
-            Title: {tm.filename}
-            Seeders: {tm.seeders}
-            Leechers: {tm.leechers}""")
+        return {
+            "Title": tm.filename,
+            "Seeders": tm.seeders,
+            "Leechers": tm.leechers,
+        }
 
+    results = []
     # if we're talking about movies or tvseries then we need to get info from IMDB
     for mm in torrents:
         if hasattr(mm, "imdb_id") and mm.imdb_id:
@@ -106,9 +105,9 @@ def get_information_on_category_for_date(category):
         else:
             ir = process_as_other(mm)
 
-        content += ir + "\n\n"
+        results.append(ir)
 
-    return content, 200
+    return json.dumps({"data": results}), 200
 
 
 if __name__ == "__main__":

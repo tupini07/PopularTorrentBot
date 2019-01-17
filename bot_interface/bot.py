@@ -1,11 +1,12 @@
-import logging
+import helper
 import sys
+import logging
 
+import textwrap
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
 
 sys.path.insert(0, '..')
 import keys
-import helper
 
 logging.basicConfig(format='BOT: %(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -13,15 +14,26 @@ logging.basicConfig(format='BOT: %(asctime)s - %(name)s - %(levelname)s - %(mess
 
 def help_c(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
-                     text="Not implemented yet")
+                     text=textwrap.dedent("""
+                     Not implemented yet
+                     """))
 
 
 def about(bot, update):
-    pass
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=textwrap.dedent("""
+                    Not implemented yet
+                    """))
 
 
 def list_categories(bot, update):
-    pass
+    msg = helper.get_supported_categories()
+
+    if type(msg) == list:
+        msg = "\n".join("- " + c for c in msg)
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=msg)
 
 
 def movies(bot, update, args):
@@ -59,7 +71,19 @@ def record_of_categories_on(bot, update, args):
 
 
 def dates_in_record(bot, update, args):
-    pass
+    if len(args) > 0 and (
+            type(args[0]) == int or str.isdigit(args[0])):
+        limit = int(args[0])
+    else:
+        limit = 15
+
+    msg = helper.get_dates_in_record(limit)
+
+    if type(msg) == list:
+        msg = "\n".join("- " + c for c in msg)
+
+    bot.send_message(chat_id=update.message.chat_id,
+                     text=msg)
 
 
 def unknown(bot, update):

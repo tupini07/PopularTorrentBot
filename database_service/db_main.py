@@ -40,11 +40,11 @@ def get_records():
     sess.close()
 
     if len(results) == 0:
-        return "[]", 204
+        return json.dumps({"data": []}), 204
 
     else:
         results = set([str(x[0]) for x in results])
-        return json.dumps(list(results)), 200
+        return json.dumps({"data": list(results)}), 200
 
 
 @app.route("/records/<date>/categories", methods=["GET"])
@@ -61,11 +61,11 @@ def get_categories_for_date(date):
     session.close()
 
     if len(results) == 0:
-        return json.dumps([]), 204
+        return json.dumps({"data": []}), 204
 
     else:
         results = set([str(x[0]) for x in results])
-        return json.dumps(list(results)), 200
+        return json.dumps({"data": list(results)}), 200
 
 
 @app.route("/records/<date>/categories/<category>", methods=["GET"])
@@ -91,9 +91,9 @@ def get_information_on_category_for_date(date, category):
     pastebin_data = pastebin_wrapper.get_paste(pastebin_url)
 
     if "Your paste has triggered our automatic SPAM" in pastebin_data:
-        return pastebin_url, 500
+        return json.dumps({"data": pastebin_url}), 500
     else:
-        return pastebin_data, 200
+        return json.dumps({"data": pastebin_data}), 200
 
 
 @app.route("/records/<date>/categories", methods=["POST"])
@@ -140,9 +140,9 @@ def create_category_entry_on_date(date):
                 session.close()
 
             except RuntimeError:
-                return content, 500 # this happens when we exceed paste limit in pastebin
+                return json.dumps({"data": content}), 500 # this happens when we exceed paste limit in pastebin
 
-        return pastebin_wrapper._wrap_data_with_information(content, paste_url), ret_code
+        return json.dumps({"data": pastebin_wrapper._wrap_data_with_information(content, paste_url)}), ret_code
 
 
 if __name__ == "__main__":
