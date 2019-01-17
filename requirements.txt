@@ -7,3 +7,4 @@ sphinx
 flask_cors
 sqlalchemy
 telegram
+beautifulsoup4
