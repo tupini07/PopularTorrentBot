@@ -7,6 +7,8 @@ __pycache__/
 *$py.class
 doctrees/
 .buildinfo
+doc_sphinx/_build
+
 # C extensions
 *.so
 

@@ -5,8 +5,7 @@
 SPHINXOPTS    =
 SPHINXBUILD   = sphinx-build
 SOURCEDIR     = .
-# BUILDDIR      = _build
-BUILDDIR      = .
+BUILDDIR      = _build
 
 # Put it first so that "make" without argument is like "make help".
 help:
@@ -18,3 +17,8 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	@mkdir -p ../docs
+	@rm -rf ../docs/*
+	@mv _build/html/* ../docs
+	@mv _build/html/.[!.]* ../docs
+	@rm -rf _build/html
