@@ -97,10 +97,11 @@ def get_information_for_category_on_date(category: str, date="today"):
 
         if date == today:
             pastebin_url = res.json()["data"]
+
         else:
             return (f"We do have data for this category and date, and it can be found here: {res.json()['data']} "
                     "But sadly we can't access it programatically since it's asking for captcha verification "
-                    "You'll need to open the link and fill it up yourself.")
+                    "so you'll need to open the link and fill it up yourself.")
 
     elif res.status_code == 422 or (res.status_code == 206 and date != today):
         return res.json()["error"]
@@ -135,8 +136,21 @@ def get_information_for_category_on_date(category: str, date="today"):
                         data={"category": category,
                               "content": output})
 
-    if res.status_code in [500, 422]:
+    if res.status_code == 422:
         return res.json()["error"]
+
+    elif res.status_code == 500:
+
+        if date == today:
+            sorry_message = ("It seems that we've exceeded the pastebin limit for these 24 hours. "
+            "So the entry could not be created in the database (meaning that the data will not be availble "
+            "for future reference), please try later. In the meantime I've gotten the torrent information "
+            "data for today.\n\n")
+
+            return sorry_message + starting_message + output
+
+        else:
+            return res.json()["error"]
 
     else:
         return starting_message + res.json()["data"]

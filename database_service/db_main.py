@@ -59,7 +59,7 @@ def get_records():
         }
 
     :query app_id: this is the id of the app
-    :status 422: the `app_id` parameter was not provided
+    :status 422: the ``app_id`` parameter was not provided
     :status 206: no records found in database 
     :status 200: records found
     """
@@ -124,7 +124,7 @@ def get_categories_for_date(date):
     :query app_id: this is the id of the app
     :query date: the date for which we want to get the list of available categories
 
-    :status 422: the `app_id` parameter was not provided
+    :status 422: the ``app_id`` parameter was not provided
     :status 422: the date parameter is not properly formatted
     :status 206: no records found in database 
     :status 200: records found
@@ -204,7 +204,7 @@ def get_information_on_category_for_date(date, category):
     :query date: the date which we're interested in
     :query category: the category we're interested in
 
-    :status 422: the `app_id` parameter was not provided
+    :status 422: the ``app_id`` parameter was not provided
     :status 422: the date parameter is not properly formatted
     :status 500: pastebin is asking for captcha verification (only pastebin URL is returned in this case)
     :status 206: no records found in database 
@@ -242,6 +242,54 @@ def get_information_on_category_for_date(date, category):
 
 @app.route("/records/<date>/categories", methods=["POST"])
 def create_category_entry_on_date(date):
+    """Allow us to create a new entry for the specified ``date`` and ``category``, which will
+    have the specified ``content`` (both content and category are passed as parameters
+    in the request body). 
+
+    .. :quickref: Create Entry; Creates entry for date+category combination.
+
+    **Example request:**
+
+    .. code-block:: http
+
+        POST /records/2019-01-17/categories HTTP/1.1
+        Host: http://www.database.com
+        Accept: application/json
+
+        {
+            "content": "some test content",
+            "category": "test-category"
+        }
+
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {
+            "data": "some test content\\n\\nThis data can also be found in pastebin, at the following URL: https://pastebin.com/raw/2VTRywd3"
+        }
+
+    :query app_id: this is the id of the app
+    :query date: the date for which we want to create a new category entry
+
+    :json category: this is the name of the category which we want to create
+    :json content: this is the content that we want to associate with the category
+
+    :status 422: the ``app_id`` parameter was not provided
+    :status 422: the date parameter is not properly formatted
+    :status 422: no ``category`` parameter is present in the request body
+    :status 422: no ``content`` parameter is present in the request body
+
+    :status 409: records already exists for combination date+category
+
+    :status 500: cannot create entry in pastebin. This happens when the service exceeds the 24h paste limit
+
+    :status 201: new record created successfully 
+    """
 
     app_id = request.args.get("app_id")
     if not app_id:

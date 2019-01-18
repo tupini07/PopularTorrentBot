@@ -81,6 +81,7 @@
               <p class="caption"><span class="caption-text">Documentation for specific parts:</span></p>
 <ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Torrent Service Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#required-authentication">Required Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoint-reference-table">Endpoint Reference Table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoint-documentation">Endpoint Documentation</a></li>
 </ul>
@@ -153,8 +154,27 @@
             
   <div class="section" id="torrent-service-documentation">
 <h1>Torrent Service Documentation<a class="headerlink" href="#torrent-service-documentation" title="Permalink to this headline">¶</a></h1>
-<p>requires token which needs to be renewed
-open API also requires api key</p>
+<p>The torrent service is quite simple. It gets information from <code class="docutils literal notranslate"><span class="pre">http://torrentapi.org/</span></code>
+for a specific category (or all categories at once). This returns an array of <em>torrents</em>
+which is sorted by <code class="docutils literal notranslate"><span class="pre">seeds</span></code> (meaning those that are being shared the most). The service gets
+the top 7 of these and processes them into a formated dictionary, see
+<a class="reference external" href="#get--categories-(category)">GET /categories/(category)</a> for an example. The service then
+returns these as a list of <code class="docutils literal notranslate"><span class="pre">JSON</span></code> objects to the user.</p>
+<p>While processing the torrents, if one is encountered that has category of <code class="docutils literal notranslate"><span class="pre">movies</span></code> or of
+<code class="docutils literal notranslate"><span class="pre">TV-series</span></code> then the service will automatically ask <code class="docutils literal notranslate"><span class="pre">http://www.omdbapi.com/</span></code> for extra
+information about them (once again, see <a class="reference external" href="#get--categories-(category)">GET /categories/(category)</a>
+for an example). This extra information will be added to the respective JSON object and will be
+sent with the data as part of the response.</p>
+<div class="section" id="required-authentication">
+<h2>Required Authentication<a class="headerlink" href="#required-authentication" title="Permalink to this headline">¶</a></h2>
+<p>Anyone can consume the torrent service without need of authentication. However, the torrent service
+does need to authenticate with both <code class="docutils literal notranslate"><span class="pre">http://torrentapi.org/</span></code> and <code class="docutils literal notranslate"><span class="pre">http://www.omdbapi.com/</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">http://www.omdbapi.com/</span></code> requires one to sign up and obtain an API key which we just need to send
+with every request we make as part of the request parameters.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">http://torrentapi.org/</span></code> we ask for a token programatically. This token expires after a certain
+period of time so we need to monitor that it is still valid and renew it if needed. For torrentapi we
+also need to specify an application name which authenticates us with the service.</p>
+</div>
 <div class="section" id="endpoint-reference-table">
 <h2>Endpoint Reference Table<a class="headerlink" href="#endpoint-reference-table" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="colwidths-given docutils">
@@ -342,6 +362,7 @@ usually there would be 7)</em></p>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   

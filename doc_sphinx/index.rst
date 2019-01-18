@@ -30,6 +30,10 @@ asked for information on a category for a specific date we can just pull the dat
 You can use the bot by adding `@ptorrentsbot <https://telegram.me/ptorrentsbot>`_ as a contect in Telegram.
 
 
+If you want to run everything yourself then you can refer to the instructions 
+`here <https://github.com/tupini07/PopularTorrentBot/blob/master/README.md>`_.
+
+
 How to access the services
 ===========================
 

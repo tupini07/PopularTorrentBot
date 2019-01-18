@@ -82,6 +82,7 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="torrent_doc.html">Torrent Service Documentation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Database Service Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#required-authentication">Required Authentication</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoint-reference-table">Endpoint Reference Table</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#endpoint-documentation">Endpoint Documentation</a></li>
 </ul>
@@ -153,10 +154,24 @@
             
   <div class="section" id="database-service-documentation">
 <h1>Database Service Documentation<a class="headerlink" href="#database-service-documentation" title="Permalink to this headline">¶</a></h1>
-<p>All requests to databse must be authenticated with an <cite>app_id</cite> parameter.
+<p>The database service is composed of two main parts. A local database (using SQLite) and
+an external repository of data (Pastebin). The local database is very simple, it only saves
+entries of the shape <code class="docutils literal notranslate"><span class="pre">(app_id,</span> <span class="pre">date,</span> <span class="pre">category,</span> <span class="pre">URL)</span></code>, where <code class="docutils literal notranslate"><span class="pre">app_id</span></code> tells the database
+who is accessing it, the <code class="docutils literal notranslate"><span class="pre">date</span></code> is the date for which we want to get/create a category, and
+<code class="docutils literal notranslate"><span class="pre">category</span></code> is the <em>key</em> we’re interested in.</p>
+<p>All requests to databse must be authenticated with an <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter.
 This allows the database to return the values for said application. Basically,
 the database service keeps a <cite>(key : value)</cite> collection for a specific application.</p>
-<p>requires api key for pastebin</p>
+<p>When a request is made to the database, for a specifc combination of <code class="docutils literal notranslate"><span class="pre">[app_id,</span> <span class="pre">date,</span> <span class="pre">category]</span></code>
+the service will obtain the pastebin URL (if any) and it will make a request to this URL and obtain
+the actual data the user is interested in. We can think that pastebin is our actual data repository
+and the local database is only an index.</p>
+<div class="section" id="required-authentication">
+<h2>Required Authentication<a class="headerlink" href="#required-authentication" title="Permalink to this headline">¶</a></h2>
+<p>The authentication steps in the database service are two, one made by the user (when specifying the
+<code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter), and the other is made by the service when it authenticates with pastebin so
+that it can create pastes.</p>
+</div>
 <div class="section" id="endpoint-reference-table">
 <h2>Endpoint Reference Table<a class="headerlink" href="#endpoint-reference-table" title="Permalink to this headline">¶</a></h2>
 <table border="1" class="colwidths-given docutils">
@@ -172,15 +187,19 @@ the database service keeps a <cite>(key : value)</cite> collection for a specifi
 </tr>
 </thead>
 <tbody valign="top">
-<tr class="row-even"><td>Get Categories for Date</td>
+<tr class="row-even"><td>Create Entry</td>
+<td><a class="reference external" href="#post--records-(date)-categories">POST /records/(date)/categories</a></td>
+<td>Creates entry for date+category combination.</td>
+</tr>
+<tr class="row-odd"><td>Get Categories for Date</td>
 <td><a class="reference external" href="#get--records-(date)-categories">GET /records/(date)/categories</a></td>
 <td>Returns list of categories for which we have information for a date.</td>
 </tr>
-<tr class="row-odd"><td>Get Category Information for Date</td>
+<tr class="row-even"><td>Get Category Information for Date</td>
 <td><a class="reference external" href="#get--records-(date)-categories-(category)">GET /records/(date)/categories/(category)</a></td>
 <td>Returns information we have saved for a category on a specific date.</td>
 </tr>
-<tr class="row-even"><td>Get Records</td>
+<tr class="row-odd"><td>Get Records</td>
 <td><a class="reference external" href="#get--records">GET /records</a></td>
 <td>Returns list of dates in database.</td>
 </tr>
@@ -226,7 +245,7 @@ the database service keeps a <cite>(key : value)</cite> collection for a specifi
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter was not provided</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
 </ul>
@@ -286,7 +305,7 @@ of said content to specify it.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter was not provided</li>
 <li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – pastebin is asking for captcha verification (only pastebin URL is returned in this case)</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
@@ -336,10 +355,70 @@ database for a specific date.</p>
 </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
-<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <cite>app_id</cite> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter was not provided</li>
 <li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="post">
+<dt id="post--records-(date)-categories">
+<code class="descname">POST </code><code class="descname">/records/</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><code class="descname">/categories</code><a class="headerlink" href="#post--records-(date)-categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow us to create a new entry for the specified <code class="docutils literal notranslate"><span class="pre">date</span></code> and <code class="docutils literal notranslate"><span class="pre">category</span></code>, which will
+have the specified <code class="docutils literal notranslate"><span class="pre">content</span></code> (both content and category are passed as parameters
+in the request body).</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">POST</span> <span class="nn">/records/2019-01-17/categories</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.database.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+
+{
+    &quot;content&quot;: &quot;some test content&quot;,
+    &quot;category&quot;: &quot;test-category&quot;
+}
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;some test content\n\nThis data can also be found in pastebin, at the following URL: https://pastebin.com/raw/2VTRywd3&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>app_id</strong> – this is the id of the app</li>
+<li><strong>date</strong> – the date for which we want to create a new category entry</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">JSON Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>category</strong> – this is the name of the category which we want to create</li>
+<li><strong>content</strong> – this is the content that we want to associate with the category</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – no <code class="docutils literal notranslate"><span class="pre">category</span></code> parameter is present in the request body</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – no <code class="docutils literal notranslate"><span class="pre">content</span></code> parameter is present in the request body</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.4.10">409 Conflict</a> – records already exists for combination date+category</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – cannot create entry in pastebin. This happens when the service exceeds the 24h paste limit</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.2">201 Created</a> – new record created successfully</li>
 </ul>
 </td>
 </tr>
@@ -395,6 +474,7 @@ database for a specific date.</p>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   
