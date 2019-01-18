@@ -34,6 +34,22 @@ If you want to run everything yourself then you can refer to the instructions
 `here <https://github.com/tupini07/PopularTorrentBot/blob/master/README.md>`_.
 
 
+Structure of the application
+============================
+
+The image below shows the structure of the application. The *workstation* images denote applications developed as part of this
+project (so the Torrent service, database service, and the telegram bot). The *globes* denote external services. The direction
+of the arrows indicate the flow of data.
+
+We can see that the torrent service consumes data fromt the *OMDb* service and from the *torrentapi* service, and is in turn
+consumed by the telegram bot. The database service is consumed by the telegram bot, and the bot can send data to the database 
+service, and this in turn can send data to the *Pastebin* service. The telegram bot uses the Telegram API to get new events
+(messages), computes the appropiate response and then once again uses the Telegram API to send said response. 
+
+.. image:: application_structure.png
+
+
+
 How to access the services
 ===========================
 

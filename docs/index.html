@@ -173,6 +173,17 @@ asked for information on a category for a specific date we can just pull the dat
 <p>If you want to run everything yourself then you can refer to the instructions
 <a class="reference external" href="https://github.com/tupini07/PopularTorrentBot/blob/master/README.md">here</a>.</p>
 </div>
+<div class="section" id="structure-of-the-application">
+<h1>Structure of the application<a class="headerlink" href="#structure-of-the-application" title="Permalink to this headline">¶</a></h1>
+<p>The image below shows the structure of the application. The <em>workstation</em> images denote applications developed as part of this
+project (so the Torrent service, database service, and the telegram bot). The <em>globes</em> denote external services. The direction
+of the arrows indicate the flow of data.</p>
+<p>We can see that the torrent service consumes data fromt the <em>OMDb</em> service and from the <em>torrentapi</em> service, and is in turn
+consumed by the telegram bot. The database service is consumed by the telegram bot, and the bot can send data to the database
+service, and this in turn can send data to the <em>Pastebin</em> service. The telegram bot uses the Telegram API to get new events
+(messages), computes the appropiate response and then once again uses the Telegram API to send said response.</p>
+<img alt="_images/application_structure.png" src="_images/application_structure.png" />
+</div>
 <div class="section" id="how-to-access-the-services">
 <h1>How to access the services<a class="headerlink" href="#how-to-access-the-services" title="Permalink to this headline">¶</a></h1>
 <p>The <em>torrent</em> and <em>database</em> services can be accessed at the followng URLs (refer to their respective documentations in the
