@@ -17,14 +17,54 @@ logging.basicConfig(format='BOT: %(asctime)s - %(name)s - %(levelname)s - %(mess
 def help_c(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
                      text=textwrap.dedent("""
-                     Not implemented yet
+                     Below are the commands that this bot understands 
+                     
+                     All category commands (`/movies`, `/tv_series`, `/ebooks`, `/music`, `/games`, `/software`, and `/all`) accept an optional `date` \
+                     which must be given in the following format `YYYY-MM-DD`. If no date is provided then torrent information for this categories is \
+                     provided for `today`. If a date is provided then the bot will check the database to see if there is an entry for that date and \
+                     category, if yes this is returned to you, but if no entry is found then an error message will be displayed.
+
+                     This bot uses `pastebin` to save the data, but sometimes pastebin will require a user to fill up a catpcha to see the content of a \
+                     paste. In these cases the bot will not be able to read the data automatically so the URL will be provided to you directly and \
+                     you'll have to open it and fill the captcha manually if you want to see the content. 
+
+
+                     Commands:
+
+                     /help - prints this help message
+
+                     /list_categories - lists the torrent categories that the bot supports
+
+                     /movies (optional: date) - get top movies for today or a specific date
+
+                     /tv_series (optional: date) - get top tv-series for today or a specific date
+
+                     /ebooks (optional: date) - get top ebooks for today or a specific date
+
+                     /music (optional: date) - get top music for today or a specific date
+
+                     /games (optional: date) - get top games for today or a specific date
+                     
+                     /software (optional: date) - get top software for today or a specific date
+                     
+                     /all (optional: date) - get top torrents for all categories, for today or a specific date
+
+                     /dates_in_record - get a list of dates for which we have information 
+
+                     /record_of_categories_on - get the categories we have information about for a specific date 
+
+                     /about - prints information about this bot
                      """))
 
 
 def about(bot, update):
     bot.send_message(chat_id=update.message.chat_id,
                      text=textwrap.dedent("""
-                    Not implemented yet
+                    This bot was created as the final project for the course of Introduction to Service Design and Engineering course at UNITN.
+
+                    It uses `torrentapi` to get torrent information, `OMDb API` to get movie and TV series information, and `Pastebin` to save torrent information.
+
+                    This bot is open source and the code can be found here: https://github.com/tupini07/PopularTorrentBot
                     """))
 
 
