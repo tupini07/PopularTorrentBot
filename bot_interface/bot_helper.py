@@ -1,3 +1,11 @@
+"""
+The *bot_helper* module contains "helper" functions for the telegram bot. Basically these are all the functions that 
+bot uses, but the main bot file `bot_main <https://github.com/tupini07/PopularTorrentBot/blob/master/bot_interface/bot_main.py>`_ 
+only contains the code for setting up the proper callbacks: 
+when a user inputs a comment via telegram, *bot_main* will ensure that the proper function from this file
+get invoked.
+"""
+
 import requests
 import sys
 import datetime
@@ -11,10 +19,17 @@ APP_ID = "PopularTorrentsBotAppId"
 
 
 def _service_call(c_type=""):
+    """
+    Just a decorator that tells the user an error message in case that
+    the services (torrent or database) are not reachable
+
+    :param c_type: if the function that we're decorating is either ``database`` or ``torrent``
+
+    :returns: a wrapped function
+    """
+
     def _dec_scall(f):
-
-        functools.wraps(f)
-
+        @functools.wraps(f)
         def wrapper(*args, **kwargs):
             try:
                 return f(*args, **kwargs)
@@ -27,17 +42,41 @@ def _service_call(c_type=""):
     return _dec_scall
 
 
-def join_list_into_message(lst, joiner="-") -> str:
+def join_list_into_message(lst: List[str], joiner="-") -> str:
+    """
+    Helper function that converts a list into a *bulleted list*
+
+    :param lst: the list of strings that we want to convert into bullets
+    :param joiner: the character that will be used to denote a bullet
+
+    :returns: A bulleted list
+    """
+
     return "\n".join(joiner + " " + c for c in lst)
 
 
 @_service_call("torrent")
 def get_supported_categories() -> List:
+    """
+    We do a request to the torrent service to see which categories are supported
+
+    :returns: the list of supported categories
+    """
+
     return requests.get(TORRENT_SERVICE_ADDRESS + "/categories").json()["categories"]
 
 
 @_service_call("database")
 def get_dates_in_record(limit=15) -> List:
+    """
+    Here we do a request to the database service and get a list of the dates it has 
+    in record.
+
+    :param limit: the maximum amount of records we want to fetch
+
+    :returns: the list of records that the database service has
+    """
+
     res = requests.get(DATABASE_SERVICE_ADDRESS + "/records",
                        params={
                            "limit": limit,
@@ -53,6 +92,15 @@ def get_dates_in_record(limit=15) -> List:
 
 @_service_call("database")
 def get_record_of_categories_on_date(dt: str) -> List:
+    """
+    Here we do a request to the database service and ask, for a specific date, which 
+    categories do we have records on
+
+    :param dt: the date in YYYY-MM-DD format
+
+    :returns: a list of categories for which we have a record for the specified date
+    """
+
     res = requests.get(DATABASE_SERVICE_ADDRESS + f"/records/{dt}/categories",
                        params={
                            "app_id": APP_ID
@@ -69,7 +117,27 @@ def get_record_of_categories_on_date(dt: str) -> List:
 
 
 @_service_call()
-def get_information_for_category_on_date(category: str, date="today"):
+def get_information_for_category_on_date(category: str, date="today") -> str:
+    """
+    Get the information we have on a specific date for a specific category. This information 
+    is asked to the database service, and if the date is today and no information is found
+    for the specified category then we ask the torrent service for that category information. 
+    Once we get it we then proceed to send it to the database service for storage.
+
+    This method is what the user calls if he/she wants to know the top torrents for a specifc
+    category for a specific date.
+
+    Note that if the user asks for a date which we don't have in the database then a message
+    saying so is displayed to the user.
+
+    :param category: the category we want to get information about
+    :param date: the date we want to get information about
+
+    :returns: the actual string of information to display to the user. This is either an 
+        error message or a message with all the top torrents for a specific category for a 
+        specific date.
+    """
+
     today = str(datetime.datetime.now().date())
     pastebin_url = None
 
@@ -143,9 +211,9 @@ def get_information_for_category_on_date(category: str, date="today"):
 
         if date == today:
             sorry_message = ("It seems that we've exceeded the pastebin limit for these 24 hours. "
-            "So the entry could not be created in the database (meaning that the data will not be availble "
-            "for future reference), please try later. In the meantime I've gotten the torrent information "
-            "data for today.\n\n")
+                             "So the entry could not be created in the database (meaning that the data will not be availble "
+                             "for future reference), please try later. In the meantime I've gotten the torrent information "
+                             "data for today.\n\n")
 
             return sorry_message + starting_message + output
 

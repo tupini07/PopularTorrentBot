@@ -1,0 +1,421 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>bot_helper &mdash; PopularTorrentBot  documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> PopularTorrentBot
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Documentation for specific parts:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../torrent_doc.html">Torrent Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../database_doc.html">Database Service Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bot_doc.html">Telegram Bot Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">PopularTorrentBot</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>bot_helper</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for bot_helper</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains &quot;helper&quot; functions for the telegram bot. Basically these are all the functions that </span>
+<span class="sd">bot uses, but the main bot file `bot_main &lt;https://github.com/tupini07/PopularTorrentBot/blob/master/bot_interface/bot_main.py&gt;`_ </span>
+<span class="sd">only contains the code for setting up the proper callbacks: </span>
+<span class="sd">when a user inputs a comment via telegram, *bot_main* will ensure that the proper function from this file</span>
+<span class="sd">get invoked.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">datetime</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="k">import</span> <span class="n">List</span>
+
+<span class="n">DATABASE_SERVICE_ADDRESS</span> <span class="o">=</span> <span class="s2">&quot;http://127.0.0.1:7801&quot;</span>
+<span class="n">TORRENT_SERVICE_ADDRESS</span> <span class="o">=</span> <span class="s2">&quot;http://127.0.0.1:7802&quot;</span>
+<span class="n">APP_ID</span> <span class="o">=</span> <span class="s2">&quot;PopularTorrentsBotAppId&quot;</span>
+
+
+<span class="k">def</span> <span class="nf">_service_call</span><span class="p">(</span><span class="n">c_type</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Just a decorator that tells the user an error message in case that</span>
+<span class="sd">    the services (torrent or database) are not reachable</span>
+
+<span class="sd">    :param c_type: if the function that we&#39;re decorating is either ``database`` or ``torrent``</span>
+
+<span class="sd">    :returns: a wrapped function</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_dec_scall</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">ConnectionError</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="s2">&quot;There was an error connecting to the </span><span class="si">{c_type}</span><span class="s2"> service. &quot;</span>
+                        <span class="s2">&quot;It seems that it is currently offline.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">wrapper</span>
+
+    <span class="k">return</span> <span class="n">_dec_scall</span>
+
+
+<div class="viewcode-block" id="join_list_into_message"><a class="viewcode-back" href="../bot_doc.html#bot_helper.join_list_into_message">[docs]</a><span class="k">def</span> <span class="nf">join_list_into_message</span><span class="p">(</span><span class="n">lst</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">joiner</span><span class="o">=</span><span class="s2">&quot;-&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Helper function that converts a list into a *bulleted list*</span>
+
+<span class="sd">    :param lst: the list of strings that we want to convert into bullets</span>
+<span class="sd">    :param joiner: the character that will be used to denote a bullet</span>
+
+<span class="sd">    :returns: A bulleted list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">joiner</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">lst</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_supported_categories"><a class="viewcode-back" href="../bot_doc.html#bot_helper.get_supported_categories">[docs]</a><span class="nd">@_service_call</span><span class="p">(</span><span class="s2">&quot;torrent&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_supported_categories</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    We do a request to the torrent service to see which categories are supported</span>
+
+<span class="sd">    :returns: the list of supported categories</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">return</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TORRENT_SERVICE_ADDRESS</span> <span class="o">+</span> <span class="s2">&quot;/categories&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;categories&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_dates_in_record"><a class="viewcode-back" href="../bot_doc.html#bot_helper.get_dates_in_record">[docs]</a><span class="nd">@_service_call</span><span class="p">(</span><span class="s2">&quot;database&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_dates_in_record</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Here we do a request to the database service and get a list of the dates it has </span>
+<span class="sd">    in record.</span>
+
+<span class="sd">    :param limit: the maximum amount of records we want to fetch</span>
+
+<span class="sd">    :returns: the list of records that the database service has</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DATABASE_SERVICE_ADDRESS</span> <span class="o">+</span> <span class="s2">&quot;/records&quot;</span><span class="p">,</span>
+                       <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                           <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+                           <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">APP_ID</span>
+                       <span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">206</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;There are no records in the database, sorry!&quot;</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_record_of_categories_on_date"><a class="viewcode-back" href="../bot_doc.html#bot_helper.get_record_of_categories_on_date">[docs]</a><span class="nd">@_service_call</span><span class="p">(</span><span class="s2">&quot;database&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">get_record_of_categories_on_date</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Here we do a request to the database service and ask, for a specific date, which </span>
+<span class="sd">    categories do we have records on</span>
+
+<span class="sd">    :param dt: the date in YYYY-MM-DD format</span>
+
+<span class="sd">    :returns: a list of categories for which we have a record for the specified date</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DATABASE_SERVICE_ADDRESS</span> <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;/records/</span><span class="si">{dt}</span><span class="s2">/categories&quot;</span><span class="p">,</span>
+                       <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                           <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">APP_ID</span>
+                       <span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">422</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">206</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;There is no data available in the database for the specified date.&quot;</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="get_information_for_category_on_date"><a class="viewcode-back" href="../bot_doc.html#bot_helper.get_information_for_category_on_date">[docs]</a><span class="nd">@_service_call</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">get_information_for_category_on_date</span><span class="p">(</span><span class="n">category</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="s2">&quot;today&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get the information we have on a specific date for a specific category. This information </span>
+<span class="sd">    is asked to the database service, and if the date is today and no information is found</span>
+<span class="sd">    for the specified category then we ask the torrent service for that category information. </span>
+<span class="sd">    Once we get it we then proceed to send it to the database service for storage.</span>
+
+<span class="sd">    This method is what the user calls if he/she wants to know the top torrents for a specifc</span>
+<span class="sd">    category for a specific date.</span>
+
+<span class="sd">    Note that if the user asks for a date which we don&#39;t have in the database then a message</span>
+<span class="sd">    saying so is displayed to the user.</span>
+
+<span class="sd">    :param category: the category we want to get information about</span>
+<span class="sd">    :param date: the date we want to get information about</span>
+
+<span class="sd">    :returns: the actual string of information to display to the user. This is either an </span>
+<span class="sd">        error message or a message with all the top torrents for a specific category for a </span>
+<span class="sd">        specific date.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">today</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
+    <span class="n">pastebin_url</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">date</span> <span class="ow">or</span> <span class="n">date</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;today&quot;</span><span class="p">:</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="n">today</span>
+
+    <span class="n">starting_message</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;Most popular &#39;</span><span class="si">{category}</span><span class="s2">&#39; torrents for &#39;</span><span class="si">{date}</span><span class="s2">&#39; </span><span class="se">\n\n</span><span class="s2">&quot;</span>
+
+    <span class="c1">#################################################################</span>
+    <span class="c1"># Ask database to see if we have record in memory</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">DATABASE_SERVICE_ADDRESS</span> <span class="o">+</span>
+                       <span class="n">f</span><span class="s2">&quot;/records/</span><span class="si">{date}</span><span class="s2">/categories/</span><span class="si">{category}</span><span class="s2">&quot;</span><span class="p">,</span>
+                       <span class="n">params</span><span class="o">=</span><span class="p">{</span>
+                           <span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">APP_ID</span>
+                       <span class="p">})</span>
+
+    <span class="c1"># Then result exists and just return that</span>
+    <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">starting_message</span> <span class="o">+</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+    <span class="c1"># in case it exists but pastbin is asking for captcha confirmation</span>
+    <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="c1"># if the result exists and the date is today then we just ask for the information to the</span>
+        <span class="c1"># torrent service once more</span>
+
+        <span class="k">if</span> <span class="n">date</span> <span class="o">==</span> <span class="n">today</span><span class="p">:</span>
+            <span class="n">pastebin_url</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">f</span><span class="s2">&quot;We do have data for this category and date, and it can be found here: {res.json()[&#39;data&#39;]} &quot;</span>
+                    <span class="s2">&quot;But sadly we can&#39;t access it programatically since it&#39;s asking for captcha verification &quot;</span>
+                    <span class="s2">&quot;so you&#39;ll need to open the link and fill it up yourself.&quot;</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">422</span> <span class="ow">or</span> <span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">206</span> <span class="ow">and</span> <span class="n">date</span> <span class="o">!=</span> <span class="n">today</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="c1">#################################################################</span>
+    <span class="c1"># get torrent information</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">TORRENT_SERVICE_ADDRESS</span> <span class="o">+</span> <span class="n">f</span><span class="s2">&quot;/categories/</span><span class="si">{category}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">400</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
+
+    <span class="c1"># format result</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">it</span> <span class="ow">in</span> <span class="n">res</span><span class="p">:</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{k}</span><span class="s2">: </span><span class="si">{v}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">it</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+
+    <span class="c1"># now, if we already have a pastebin url (meaning that the request was for today</span>
+    <span class="c1"># and that we have the information in the database but pastebin is asking for captcha)</span>
+    <span class="c1"># then we proceed to just add this to the end of the result and return this</span>
+    <span class="k">if</span> <span class="n">pastebin_url</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">starting_message</span> <span class="o">+</span> <span class="n">output</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">This data can also be found in Pastebin, at the following URL: &quot;</span> <span class="o">+</span> <span class="n">pastebin_url</span>
+
+    <span class="c1">#################################################################</span>
+    <span class="c1"># add to database</span>
+
+    <span class="n">res</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">DATABASE_SERVICE_ADDRESS</span> <span class="o">+</span>
+                        <span class="n">f</span><span class="s2">&quot;/records/</span><span class="si">{today}</span><span class="s2">/categories&quot;</span><span class="p">,</span>
+                        <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;app_id&quot;</span><span class="p">:</span> <span class="n">APP_ID</span><span class="p">},</span>
+                        <span class="n">data</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="n">category</span><span class="p">,</span>
+                              <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">output</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">422</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">res</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">500</span><span class="p">:</span>
+
+        <span class="k">if</span> <span class="n">date</span> <span class="o">==</span> <span class="n">today</span><span class="p">:</span>
+            <span class="n">sorry_message</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;It seems that we&#39;ve exceeded the pastebin limit for these 24 hours. &quot;</span>
+                             <span class="s2">&quot;So the entry could not be created in the database (meaning that the data will not be availble &quot;</span>
+                             <span class="s2">&quot;for future reference), please try later. In the meantime I&#39;ve gotten the torrent information &quot;</span>
+                             <span class="s2">&quot;data for today.</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">sorry_message</span> <span class="o">+</span> <span class="n">starting_message</span> <span class="o">+</span> <span class="n">output</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;error&quot;</span><span class="p">]</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">starting_message</span> <span class="o">+</span> <span class="n">res</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Andrea Tupini
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -5,6 +5,10 @@ Telegram Bot Documentation
 .. .. automodule:: bot_main
 ..     :members:
 
+asdsad
 
 .. automodule:: bot_helper
-    :members:
+    :members: 
+    :undoc-members:
+    :show-inheritance:
+

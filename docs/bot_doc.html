@@ -148,7 +148,112 @@
             
   <div class="section" id="telegram-bot-documentation">
 <h1>Telegram Bot Documentation<a class="headerlink" href="#telegram-bot-documentation" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-bot_helper"></span></div>
+<p>asdsad</p>
+<span class="target" id="module-bot_helper"></span><p>This module contains “helper” functions for the telegram bot. Basically these are all the functions that 
+bot uses, but the main bot file <a class="reference external" href="https://github.com/tupini07/PopularTorrentBot/blob/master/bot_interface/bot_main.py">bot_main</a> 
+only contains the code for setting up the proper callbacks: 
+when a user inputs a comment via telegram, <em>bot_main</em> will ensure that the proper function from this file
+get invoked.</p>
+<dl class="function">
+<dt id="bot_helper.get_dates_in_record">
+<code class="descclassname">bot_helper.</code><code class="descname">get_dates_in_record</code><span class="sig-paren">(</span><em>limit=15</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/bot_helper.html#get_dates_in_record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot_helper.get_dates_in_record" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here we do a request to the database service and get a list of the dates it has 
+in record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>limit</strong> – the maximum amount of records we want to fetch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the list of records that the database service has</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bot_helper.get_information_for_category_on_date">
+<code class="descclassname">bot_helper.</code><code class="descname">get_information_for_category_on_date</code><span class="sig-paren">(</span><em>category: str</em>, <em>date='today'</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/bot_helper.html#get_information_for_category_on_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot_helper.get_information_for_category_on_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the information we have on a specific date for a specific category. This information 
+is asked to the database service, and if the date is today and no information is found
+for the specified category then we ask the torrent service for that category information. 
+Once we get it we then proceed to send it to the database service for storage.</p>
+<p>This method is what the user calls if he/she wants to know the top torrents for a specifc
+category for a specific date.</p>
+<p>Note that if the user asks for a date which we don’t have in the database then a message
+saying so is displayed to the user.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>category</strong> – the category we want to get information about</li>
+<li><strong>date</strong> – the date we want to get information about</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the actual string of information to display to the user. This is either an 
+error message or a message with all the top torrents for a specific category for a 
+specific date.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bot_helper.get_record_of_categories_on_date">
+<code class="descclassname">bot_helper.</code><code class="descname">get_record_of_categories_on_date</code><span class="sig-paren">(</span><em>dt: str</em><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/bot_helper.html#get_record_of_categories_on_date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot_helper.get_record_of_categories_on_date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here we do a request to the database service and ask, for a specific date, which 
+categories do we have records on</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dt</strong> – the date in YYYY-MM-DD format</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of categories for which we have a record for the specified date</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bot_helper.get_supported_categories">
+<code class="descclassname">bot_helper.</code><code class="descname">get_supported_categories</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; List<a class="reference internal" href="_modules/bot_helper.html#get_supported_categories"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot_helper.get_supported_categories" title="Permalink to this definition">¶</a></dt>
+<dd><p>We do a request to the torrent service to see which categories are supported</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the list of supported categories</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="bot_helper.join_list_into_message">
+<code class="descclassname">bot_helper.</code><code class="descname">join_list_into_message</code><span class="sig-paren">(</span><em>lst: List[str], joiner='-'</em><span class="sig-paren">)</span> &#x2192; str<a class="reference internal" href="_modules/bot_helper.html#join_list_into_message"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#bot_helper.join_list_into_message" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function that converts a list into a <em>bulleted list</em></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>lst</strong> – the list of strings that we want to convert into bullets</li>
+<li><strong>joiner</strong> – the character that will be used to denote a bullet</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A bulleted list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 
 
            </div>
