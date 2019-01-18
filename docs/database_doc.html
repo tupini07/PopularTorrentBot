@@ -203,6 +203,10 @@ that it can create pastes.</p>
 <td><a class="reference external" href="#get--records">GET /records</a></td>
 <td>Returns list of dates in database.</td>
 </tr>
+<tr class="row-even"><td>Update Entry</td>
+<td><a class="reference external" href="#put--records-(date)-categories-(category)">PUT /records/(date)/categories/(category)</a></td>
+<td>Updates an entry of date+category combination.</td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -282,7 +286,7 @@ of said content to specify it.</p>
 <span class="sb">    Title: Accidental Texting: Finding Love despite the Spotl .EPUB</span>
 <span class="sb">    Seeders: 4</span>
 <span class="sb">    Leechers: 0</span>
-<span class="sb">    </span>
+
 <span class="sb">    Title: Tear You Apart by Megan Hart .PDF</span>
 <span class="sb">    Seeders: 3</span>
 <span class="sb">    Leechers: 0</span>
@@ -310,6 +314,66 @@ of said content to specify it.</p>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – pastebin is asking for captcha verification (only pastebin URL is returned in this case)</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – no records found in database</li>
 <li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – records found</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="put">
+<dt id="put--records-(date)-categories-(category)">
+<code class="descname">PUT </code><code class="descname">/records/</code><span class="sig-paren">(</span><em>date</em><span class="sig-paren">)</span><code class="descname">/categories/</code><span class="sig-paren">(</span><em>category</em><span class="sig-paren">)</span><a class="headerlink" href="#put--records-(date)-categories-(category)" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow us to update an entry for the specified <code class="docutils literal notranslate"><span class="pre">date</span></code> and <code class="docutils literal notranslate"><span class="pre">category</span></code>, with 
+the specified  <code class="docutils literal notranslate"><span class="pre">content</span></code> (which is passed as parameter
+in the request body).</p>
+<p>Basically what is done is that a new paste in pastebin is created and the URL
+associated with the record gets updated to the URL of the new paste.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="nf">PUT</span> <span class="nn">/records/2019-01-17/categories/movies</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span>
+<span class="na">Host</span><span class="o">:</span> <span class="l">http://www.database.com</span>
+<span class="na">Accept</span><span class="o">:</span> <span class="l">application/json</span>
+
+{
+    &quot;content&quot;: &quot;some new content to replace the old content&quot;,
+}
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http notranslate"><div class="highlight"><pre><span></span><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.1</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Vary</span><span class="o">:</span> <span class="l">Accept</span>
+<span class="na">Content-Type</span><span class="o">:</span> <span class="l">application/json</span>
+
+<span class="p">{</span>
+    <span class="nt">&quot;data&quot;</span><span class="p">:</span> <span class="s2">&quot;https://pastebin.com/raw/sXCVakjQ&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2">Query Parameters:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>app_id</strong> – this is the id of the app</li>
+<li><strong>date</strong> – the date for which we want to update the entry</li>
+<li><strong>category</strong> – the category for which we want to update the entry</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">JSON Parameters:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body"><ul class="first simple">
+<li><strong>content</strong> – this is the new content that we want to associate with the category</li>
+</ul>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Status Codes:</th><td class="field-body"><ul class="first last simple">
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the <code class="docutils literal notranslate"><span class="pre">app_id</span></code> parameter was not provided</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – the date parameter is not properly formatted</li>
+<li><a class="reference external" href="http://tools.ietf.org/html/rfc4918#section-11.2">422 Unprocessable Entity</a> – no <code class="docutils literal notranslate"><span class="pre">content</span></code> parameter is present in the request body</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.7">206 Partial Content</a> – there is no record with the combination date+category so no update is possible</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.5.1">500 Internal Server Error</a> – cannot create entry in pastebin. This happens when the service exceeds the 24h paste limit</li>
+<li><a class="reference external" href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html#sec10.2.1">200 OK</a> – record updated successfully</li>
 </ul>
 </td>
 </tr>
@@ -474,7 +538,6 @@ in the request body).</p>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="_static/language_data.js"></script>
     
 
   

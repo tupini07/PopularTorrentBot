@@ -191,7 +191,7 @@ def get_information_on_category_for_date(date, category):
             Title: Accidental Texting: Finding Love despite the Spotl .EPUB
             Seeders: 4
             Leechers: 0
-            
+
             Title: Tear You Apart by Megan Hart .PDF
             Seeders: 3
             Leechers: 0
@@ -235,7 +235,8 @@ def get_information_on_category_for_date(date, category):
     pastebin_data = pastebin_wrapper.get_paste(pastebin_url)
 
     if "Your paste has triggered our automatic SPAM" in pastebin_data:
-        return json.dumps({"data": pastebin_url}), 500 # pastebin is asking for captcha
+        # pastebin is asking for captcha
+        return json.dumps({"data": pastebin_url}), 500
     else:
         return json.dumps({"data": pastebin_data}), 200
 
@@ -341,6 +342,96 @@ def create_category_entry_on_date(date):
                                              "Possibly because we've exceeded the daily paste limit in pastebin.")}), 500  # this happens when we exceed paste limit in pastebin
 
         return json.dumps({"data": pastebin_wrapper._wrap_data_with_information(content, paste_url)}), ret_code
+
+
+@app.route("/records/<date>/categories/<category>", methods=["PUT"])
+def update_record(date, category):
+    """Allow us to update an entry for the specified ``date`` and ``category``, with 
+    the specified  ``content`` (which is passed as parameter
+    in the request body). 
+
+    Basically what is done is that a new paste in pastebin is created and the URL
+    associated with the record gets updated to the URL of the new paste.
+
+    .. :quickref: Update Entry; Updates an entry of date+category combination.
+
+    **Example request:**
+
+    .. code-block:: http
+
+        PUT /records/2019-01-17/categories/movies HTTP/1.1
+        Host: http://www.database.com
+        Accept: application/json
+
+        {
+            "content": "some new content to replace the old content",
+        }
+
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.1 200 OK
+        Vary: Accept
+        Content-Type: application/json
+
+        {
+            "data": "https://pastebin.com/raw/sXCVakjQ"
+        }
+
+    :query app_id: this is the id of the app
+    :query date: the date for which we want to update the entry
+    :query category: the category for which we want to update the entry
+
+    :json content: this is the new content that we want to associate with the category
+
+    :status 422: the ``app_id`` parameter was not provided
+    :status 422: the date parameter is not properly formatted
+    :status 422: no ``content`` parameter is present in the request body
+
+    :status 206: there is no record with the combination date+category so no update is possible
+
+    :status 500: cannot create entry in pastebin. This happens when the service exceeds the 24h paste limit
+
+    :status 200: record updated successfully
+    """
+
+    app_id = request.args.get("app_id")
+    if not app_id:
+        return json.dumps({"error": "No 'app_id' parameter has been provided"}), 422
+
+    if "content" not in request.form.keys():
+        return json.dumps({"error": "No content specified in the request body."}), 422
+
+    try:
+        date = [int(x) for x in date.split("-")]
+        date = datetime.date(*date)
+
+    except Exception:
+        return json.dumps({"error": "Date is not properly formated, it should have the following format: YYYY-MM-DD"}), 422
+
+    content = request.form.get("content")
+
+    session = Session()
+    result = session.query(Record).filter_by(
+        app_id=app_id, date=date, category=category).first()
+
+    if not result:
+        session.close()
+        return json.dumps({"error": "There is no record for the specified date and category so no update can be made."}), 206
+
+    try:
+        paste_url = pastebin_wrapper.add_paste(content)
+        result.url = paste_url
+        session.commit()
+
+    except RuntimeError:
+        return json.dumps({"error": ("Database service was not able to create entry in database. "
+                                     "Possibly because we've exceeded the daily paste limit in pastebin.")}), 500  # this happens when we exceed paste limit in pastebin
+    finally:
+        session.close()
+
+    return json.dumps({"data": result.url}), 200
 
 
 if __name__ == "__main__":

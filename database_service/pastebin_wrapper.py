@@ -117,7 +117,7 @@ def get_paste(paste_url: str, wrap=True) -> str:
 
     paste_url - the URL from which we want to get the content from
     wrap (default True) - if we want to add the line at the botton of the paste
-                          which identifies where the paste came from
+    which identifies where the paste came from
 
     returns the content in the pastebin_url
     """

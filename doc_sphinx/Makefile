@@ -23,3 +23,4 @@ help:
 	@mv _build/html/* ../docs
 	@mv _build/html/.[!.]* ../docs
 	@rm -rf _build/html
+	@rm database.db

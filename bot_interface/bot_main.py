@@ -1,7 +1,8 @@
-import helper
 import sys
 import logging
 import datetime
+
+import bot_helper as h
 
 import textwrap
 from telegram.ext import CommandHandler, Filters, MessageHandler, Updater
@@ -28,10 +29,10 @@ def about(bot, update):
 
 
 def list_categories(bot, update):
-    msg = helper.get_supported_categories()
+    msg = h.get_supported_categories()
 
     if type(msg) == list:
-        msg = helper.join_list_into_message(msg)
+        msg = h.join_list_into_message(msg)
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -42,7 +43,7 @@ def categories_handler(category):
     def telegram_handle(bot, update, args):
         date = args[0] if len(args) > 0 else None
         bot.send_message(chat_id=update.message.chat_id,
-                         text=helper.get_information_for_category_on_date(category, date))
+                         text=h.get_information_for_category_on_date(category, date))
     return telegram_handle
 
 
@@ -57,10 +58,10 @@ def record_of_categories_on(bot, update, args):
                          text="You need to specify a date and it should have the following format: YYYY-MM-DD")
         return
 
-    msg = helper.get_record_of_categories_on_date(str(date))
+    msg = h.get_record_of_categories_on_date(str(date))
 
     if type(msg) == list and len(msg) > 0:
-        msg = helper.join_list_into_message(msg)
+        msg = h.join_list_into_message(msg)
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
@@ -73,10 +74,10 @@ def dates_in_record(bot, update, args):
     except Exception:
         limit = 15
 
-    msg = helper.get_dates_in_record(limit)
+    msg = h.get_dates_in_record(limit)
 
     if type(msg) == list and len(msg) > 0:
-        msg = helper.join_list_into_message(msg, joiner=">")
+        msg = h.join_list_into_message(msg, joiner=">")
 
     bot.send_message(chat_id=update.message.chat_id,
                      text=msg)
