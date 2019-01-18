@@ -2,7 +2,7 @@ Telegram Bot Documentation
 ==========================
 
 The telegram bot creates the interface that the user will interact with and is also in 
-charge of integrating the different services (as can be seen in the ApplicationStructure_ section.
+charge of integrating the different services (as can be seen in the :ref:`ApplicationStructure` section.
 
 When asked for the most popular torrents of a category, on a specific date, this application will
 first of all ask the database service to see if we have a record, if yes then we just fetch it and
@@ -21,7 +21,7 @@ is provided when signing up as Telegram developer.
 
 
 Bot Functions Documentation
-**********************
+****************************
 
 .. automodule:: bot_helper
     :members: 

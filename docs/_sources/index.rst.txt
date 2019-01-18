@@ -34,6 +34,8 @@ If you want to run everything yourself then you can refer to the instructions
 `here <https://github.com/tupini07/PopularTorrentBot/blob/master/README.md>`_.
 
 
+.. _ApplicationStructure:
+
 Structure of the application
 ============================
 

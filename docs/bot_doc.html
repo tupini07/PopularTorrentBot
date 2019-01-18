@@ -81,7 +81,11 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="torrent_doc.html">Torrent Service Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="database_doc.html">Database Service Documentation</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Telegram Bot Documentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Telegram Bot Documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#required-authentication">Required Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-bot_helper">Bot Functions Documentation</a></li>
+</ul>
+</li>
 </ul>
 
             
@@ -148,8 +152,22 @@
             
   <div class="section" id="telegram-bot-documentation">
 <h1>Telegram Bot Documentation<a class="headerlink" href="#telegram-bot-documentation" title="Permalink to this headline">¶</a></h1>
-<p>asdsad</p>
-<span class="target" id="module-bot_helper"></span><p>The <em>bot_helper</em> module contains “helper” functions for the telegram bot. Basically these are all the functions that 
+<p>The telegram bot creates the interface that the user will interact with and is also in
+charge of integrating the different services (as can be seen in the <a class="reference internal" href="index.html#applicationstructure"><span class="std std-ref">Structure of the application</span></a> section.</p>
+<p>When asked for the most popular torrents of a category, on a specific date, this application will
+first of all ask the database service to see if we have a record, if yes then we just fetch it and
+return that to the user. If no record exists then the data is fetched from the Torrent service
+(only if the requested date it <em>today</em>, if not an error message is displayed to the user), after
+obtaining this data it is sent over to the database service so that it can be saved. Finally it is
+displayed to the user.</p>
+<div class="section" id="required-authentication">
+<h2>Required Authentication<a class="headerlink" href="#required-authentication" title="Permalink to this headline">¶</a></h2>
+<p>The bot module needs to authenticate with the Telegram API by using an API key, which
+is provided when signing up as Telegram developer.</p>
+</div>
+<div class="section" id="module-bot_helper">
+<span id="bot-functions-documentation"></span><h2>Bot Functions Documentation<a class="headerlink" href="#module-bot_helper" title="Permalink to this headline">¶</a></h2>
+<p>The <em>bot_helper</em> module contains “helper” functions for the telegram bot. Basically these are all the functions that 
 bot uses, but the main bot file <a class="reference external" href="https://github.com/tupini07/PopularTorrentBot/blob/master/bot_interface/bot_main.py">bot_main</a> 
 only contains the code for setting up the proper callbacks: 
 when a user inputs a comment via telegram, <em>bot_main</em> will ensure that the proper function from this file
@@ -253,6 +271,7 @@ categories do we have records on</p>
 </table>
 </dd></dl>
 
+</div>
 </div>
 
 
