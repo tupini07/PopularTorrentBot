@@ -78,22 +78,6 @@ python bot_main.py
 
 ## Notes:
 
-Remember to implement database as a separate service. Could use the following structure. 
-
-- bot
-- server
-- database
-
-Hosting can be done like this:
-
-- telegram bot on raspberry pi
-- database on pythonanywhere
-- server (all the rest) of heroku
-
-_____________
-
-## Questions:
-
 - Output of project, besides the live version, should we also provide a VM/docker (which)?
   - can do both
   - VM has no limit of space
