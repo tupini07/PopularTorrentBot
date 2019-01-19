@@ -17,7 +17,7 @@ This bot was created as the final project for the course of
 at *UNITN*.
 
 
-If the categorie is either *movie* or *TV-series* then the bot will also fetch the relevant information from IMBD 
+If the category is either *movie* or *TV-series* then the bot will also fetch the relevant information from IMBD 
 (by using the excelent `OMDb API <http://www.omdbapi.com/>`_ service), and shows it to you.
 
 As mentioned above, *OMDb API* is used to fetch movie/tv-series information. For the torrent information we use the 
