@@ -49,7 +49,7 @@ def help_c(bot, update):
                      
                      /all (optional: date) - get top torrents for all categories, for today or a specific date
 
-                     /dates_in_record - get a list of dates for which we have information 
+                     /dates_in_record (optional: max limit) - get a list of dates for which we have information 
 
                      /record_of_categories_on - get the categories we have information about for a specific date 
 
