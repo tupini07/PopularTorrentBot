@@ -46,7 +46,8 @@ pip install -r requirements.txt
 ```
 
 Then you'll need to get the appropiate keys for each of the services and add them to the `keys example.py` file. Then rename 
-this file to just `keys.py`. 
+this file to just `keys.py`. Note that for Pastebin you can define multiple keys, although this is not required, only 
+one key will still work fine (however, the `PASTEBIN_KEYS` variable should be left an a List which contains Dicts)
 
 Then you just need to run each of the applications. 
 

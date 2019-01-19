@@ -36,7 +36,7 @@ def get_records():
     .. code-block:: http
 
         GET /records HTTP/1.1
-        Host: http://www.database.com
+        Host: http://tupini07.pythonanywhere.com
         Accept: application/json
 
 
@@ -100,7 +100,7 @@ def get_categories_for_date(date):
     .. code-block:: http
 
         GET /records/2019-01-16/categories HTTP/1.1
-        Host: http://www.database.com
+        Host: http://tupini07.pythonanywhere.com
         Accept: application/json
 
 
@@ -174,7 +174,7 @@ def get_information_on_category_for_date(date, category):
     .. code-block:: http
 
         GET /records/2019-01-16/categories/ebooks HTTP/1.1
-        Host: http://www.database.com
+        Host: http://tupini07.pythonanywhere.com
         Accept: application/json
 
 
@@ -254,7 +254,7 @@ def create_category_entry_on_date(date):
     .. code-block:: http
 
         POST /records/2019-01-17/categories HTTP/1.1
-        Host: http://www.database.com
+        Host: http://tupini07.pythonanywhere.com
         Accept: application/json
 
         {
@@ -360,7 +360,7 @@ def update_record(date, category):
     .. code-block:: http
 
         PUT /records/2019-01-17/categories/movies HTTP/1.1
-        Host: http://www.database.com
+        Host: http://tupini07.pythonanywhere.com
         Accept: application/json
 
         {

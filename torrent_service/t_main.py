@@ -52,7 +52,7 @@ def get_categories():
     .. code-block:: http
 
         GET /categories HTTP/1.1
-        Host: http://www.torrent.com
+        Host: https://torrent-service-sde.herokuapp.com
         Accept: application/json
 
 
@@ -109,7 +109,7 @@ def get_information_on_category_for_date(category):
     .. code-block:: http
 
         GET /categories/movies HTTP/1.1
-        Host: http://www.torrent.com
+        Host: https://torrent-service-sde.herokuapp.com
         Accept: application/json
 
 

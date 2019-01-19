@@ -58,8 +58,8 @@ How to access the services
 The *torrent* and *database* services can be accessed at the followng URLs (refer to their respective documentations in the 
 links shown in the following section).
 
-* **Torrent Service:** some url
-* **Database Service:** some url
+* **Torrent Service:** `http://tupini07.pythonanywhere.com <http://tupini07.pythonanywhere.com>`_
+* **Database Service:** `https://torrent-service-sde.herokuapp.com <https://torrent-service-sde.herokuapp.com>`_
 
 
 Structure of the project
