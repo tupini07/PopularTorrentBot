@@ -73,7 +73,9 @@ python bot_main.py
 ```
 
 
-#### To build the documentation
+#### To build the documentation 
+
+*Note: it will be built in the `docs` folder, in the root of the project*
 
 ```
 cd doc_sphinx
