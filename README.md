@@ -71,3 +71,11 @@ python db_main.py
 cd bot_interface
 python bot_main.py
 ```
+
+
+#### To build the documentation
+
+```
+cd doc_sphinx
+make html
+```
