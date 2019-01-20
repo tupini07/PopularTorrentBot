@@ -416,11 +416,10 @@ def update_record(date, category):
     result = session.query(Record).filter_by(
         app_id=app_id, date=date, category=category).first()
 
-    if not result:
-        session.close()
-        return json.dumps({"error": "There is no record for the specified date and category so no update can be made."}), 206
-
     try:
+        if not result:
+            return json.dumps({"error": "There is no record for the specified date and category so no update can be made."}), 206
+
         paste_url = pastebin_wrapper.add_paste(content)
         result.url = paste_url
         session.commit()
