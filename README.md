@@ -71,21 +71,3 @@ python db_main.py
 cd bot_interface
 python bot_main.py
 ```
-
-
-
-
-
-## Notes:
-
-- Output of project, besides the live version, should we also provide a VM/docker (which)?
-  - can do both
-  - VM has no limit of space
-  - If virtual machine then services should be accessible separately from localhost when they're launched inside the VM. 
-    - there should also be a live version of the services online to test with postman
-
-- Presentation is live demo
-- What should the report contain?
-  - explain all layers (we have data layer, business logic, process centric)
-  - explain architecture (also include figure)
-  - Not longer than 3 pages
