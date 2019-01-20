@@ -413,6 +413,8 @@ def update_record(date, category):
     content = request.form.get("content")
 
     session = Session()
+    session.expire_on_commit = False
+    
     result = session.query(Record).filter_by(
         app_id=app_id, date=date, category=category).first()
 
