@@ -1,5 +1,7 @@
 # PopularTorrentBot
 
+**NOTE: The services that are part of this project are no longer live. If you with to use them you'll have to host them yourself :smiley:**
+
 Documentation can be seen here: [https://tupini07.github.io/PopularTorrentBot](https://tupini07.github.io/PopularTorrentBot)
 
 PopularTorrentBot is a simple telegram bot that tells you which are the most popular torrents for a given date. 
