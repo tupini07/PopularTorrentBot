@@ -28,7 +28,7 @@ and in the database we just store key value pairs, where the key is composed of 
 is a pastebin URL. In this way, when we get asked for information on a category for a specific date we can just pull 
 the data from Pastebin.
 
-You can use the bot by adding [@ptorrentsbot](https://telegram.me/ptorrentsbot) as a contect in Telegram.
+You can use the bot by adding [@ptorrentsbot](https://telegram.me/ptorrentsbot) as a contact on Telegram.
 
 
 ## How to run the bot
@@ -39,7 +39,7 @@ This repository contains 3 different projects:
 - The torrent service
 - The telegram bot
 
-These are executed as standalone applications, and can communicate freely between themselves. 
+These are executed as standalone applications, and can communicate freely among themselves. 
 
 To run them you'll first of all need to install the dependencies by running from the root of the reporsitory:
 
@@ -49,7 +49,7 @@ pip install -r requirements.txt
 
 Then you'll need to get the appropiate keys for each of the services and add them to the `keys example.py` file. Then rename 
 this file to just `keys.py`. Note that for Pastebin you can define multiple keys, although this is not required, only 
-one key will still work fine (however, the `PASTEBIN_KEYS` variable should be left an a List which contains Dicts)
+one key will still work fine (however, the `PASTEBIN_KEYS` variable should be left as a _List_ of _Dicts_)
 
 Then you just need to run each of the applications. 
 
